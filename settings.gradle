@@ -1,0 +1,31 @@
+pluginManagement {
+    plugins {
+        id 'application'
+        id 'org.jetbrains.kotlin.jvm' version '1.3.72'
+        id 'org.jlleitschuh.gradle.ktlint' version '9.3.0'
+    }
+}
+
+rootProject.name = 'kotlin-vertx'
+
+include 'core:domain'
+project(':core:domain').name = 'core-domain'
+include 'core:error'
+project(':core:error').name = 'core-error'
+
+include 'infrastructure:json'
+project(':infrastructure:json').name = 'infrastructure-json'
+include 'infrastructure:http'
+project(':infrastructure:http').name = 'infrastructure-http'
+include 'infrastructure:postgres'
+project(':infrastructure:postgres').name = 'infrastructure-postgres'
+
+include 'products:domain'
+project(':products:domain').name = 'products-domain'
+include 'products:application'
+project(':products:application').name = 'products-application'
+include 'products:adapter'
+project(':products:adapter').name = 'products-adapter'
+
+include ':main'
+project(':main').name = 'main'

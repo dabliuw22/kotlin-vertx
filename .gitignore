@@ -1,0 +1,11 @@
+/.gradle
+/.idea
+.idea_modules
+/out
+/build
+*.iml
+*.ipr
+*.iws
+*.sublime-project
+*.sublime-workspace
+.DS_Store
