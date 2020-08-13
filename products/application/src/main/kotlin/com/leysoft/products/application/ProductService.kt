@@ -3,9 +3,11 @@ package com.leysoft.products.application
 import arrow.Kind
 import arrow.core.Option
 import arrow.fx.typeclasses.Effect
-import com.leysoft.products.domain.Product
-import com.leysoft.products.domain.ProductId
+import com.leysoft.core.domain.Product
+import com.leysoft.core.domain.ProductId
+import com.leysoft.products.domain.fromCore
 import com.leysoft.products.domain.persistence.ProductRepository
+import com.leysoft.products.domain.toCore
 
 interface ProductService<F> {
 
@@ -25,16 +27,20 @@ class DefaultProductService<F> private constructor(
     ProductService<F>, Effect<F> by Q {
 
     override fun findBy(id: ProductId): Kind<F, Option<Product>> =
-        repository.findBy(id)
+        repository.findBy(id.fromCore())
+            .map { it.map { product -> product.toCore() } }
 
     override fun findAll(): Kind<F, List<Product>> =
         repository.findAll()
+            .map { it.map { product -> product.toCore() } }
 
     override fun save(product: Product): Kind<F, Unit> =
-        repository.save(product)
+        just(product)
+            .map { it.fromCore() }
+            .flatMap { repository.save(it) }
 
     override fun deleteBy(id: ProductId): Kind<F, Boolean> =
-        repository.deleteBy(id)
+        repository.deleteBy(id.fromCore())
 
     companion object {
 

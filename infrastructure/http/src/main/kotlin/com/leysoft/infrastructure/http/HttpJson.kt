@@ -1,7 +1,6 @@
 package com.leysoft.infrastructure.http
 
 import com.leysoft.infrastructure.json.Json
-import io.vertx.core.json.JsonObject
 import kotlin.reflect.KClass
 
 open class HttpJson {

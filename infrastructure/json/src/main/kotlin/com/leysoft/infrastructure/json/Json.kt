@@ -34,5 +34,5 @@ object Json {
             is Failure -> throw JsonException(result.exception)
         }
 
-    data class JsonException(val throwable: Throwable): RuntimeException(throwable)
+    data class JsonException(val throwable: Throwable) : RuntimeException(throwable)
 }

@@ -1,0 +1,5 @@
+--reporter=plain
+--color
+--reporter=plain,output=/Users/will/Documents/workspaces/will-workspace/kotlin-vertx/products/application/build/reports/ktlint/ktlintMainSourceSetFormat.txt
+-F
+src/main/kotlin/com/leysoft/products/application/ProductService.kt

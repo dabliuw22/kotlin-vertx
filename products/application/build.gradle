@@ -9,5 +9,7 @@ dependencies {
     implementation "io.arrow-kt:arrow-fx"
     kapt "io.arrow-kt:arrow-meta"
 
+    implementation project (":core:core-domain")
+
     implementation project (":products:products-domain")
 }

@@ -10,4 +10,6 @@ dependencies {
     implementation "io.arrow-kt:arrow-fx-rx2"
     implementation "io.arrow-kt:arrow-fx-reactor"
     kapt "io.arrow-kt:arrow-meta"
+
+    implementation project (":core:core-domain")
 }

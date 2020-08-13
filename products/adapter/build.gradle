@@ -15,6 +15,8 @@ dependencies {
     implementation "io.arrow-kt:arrow-fx-reactor"
     kapt "io.arrow-kt:arrow-meta"
 
+    implementation project (":core:core-domain")
+
     implementation project (":infrastructure:infrastructure-http")
     implementation project (":infrastructure:infrastructure-json")
     implementation project (":infrastructure:infrastructure-postgres")

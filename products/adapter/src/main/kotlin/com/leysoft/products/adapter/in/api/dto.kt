@@ -1,15 +1,16 @@
 package com.leysoft.products.adapter.`in`.api
 
-import com.leysoft.products.domain.Product
-import com.leysoft.products.domain.ProductName
-import com.leysoft.products.domain.ProductStock
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.leysoft.core.domain.Product
+import com.leysoft.core.domain.ProductName
+import com.leysoft.core.domain.ProductStock
 import java.time.OffsetDateTime
 
 data class GetProductDto(
     val id: String,
     val name: String,
     val stock: Double,
-    val createdAt: OffsetDateTime
+    @JsonProperty("created_at") val createdAt: OffsetDateTime
 )
 
 fun Product.toDto(): GetProductDto = GetProductDto(

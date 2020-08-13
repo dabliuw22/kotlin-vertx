@@ -2,11 +2,12 @@ package com.leysoft.products.adapter.`in`.api
 
 import arrow.core.Either.Left
 import arrow.core.Either.Right
+import arrow.core.Some
 import arrow.fx.ForIO
 import arrow.fx.fix
+import com.leysoft.core.domain.ProductId
 import com.leysoft.infrastructure.http.HttpJson
 import com.leysoft.products.application.ProductService
-import com.leysoft.products.domain.ProductId
 import io.netty.handler.codec.http.HttpResponseStatus
 import io.vertx.core.http.HttpHeaders
 import io.vertx.core.http.HttpMethod
@@ -21,6 +22,7 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
         router.route(HttpMethod.GET, GetById)
             .handler { getByIdHandler(it) }
         router.route(HttpMethod.POST, Create)
+            .consumes(ApplicationJson)
             .handler { createHandler(it) }
         router.route(HttpMethod.DELETE, DelById)
             .handler { delByIdHandler(it) }
@@ -44,13 +46,22 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
 
     private fun getByIdHandler(ctx: RoutingContext) {
         service.findBy(ProductId(ctx.request().getParam("productId")))
-            .fix().unsafeRunAsync {
-                when (it) {
-                    is Right ->
-                        ctx.response()
-                            .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
-                            .setStatusCode(HttpResponseStatus.OK.code())
-                            .end(encode(it.b.map { product -> product.toDto() }))
+            .fix().unsafeRunAsync { result ->
+                when (result) {
+                    is Right -> {
+                        when (val product = result.b) {
+                            is Some ->
+                                ctx.response()
+                                    .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
+                                    .setStatusCode(HttpResponseStatus.OK.code())
+                                    .end(encode(product.t.toDto()))
+                            else ->
+                                ctx.response()
+                                    .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
+                                    .setStatusCode(HttpResponseStatus.NOT_FOUND.code())
+                                    .end()
+                        }
+                    }
                     else ->
                         ctx.response()
                             .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
@@ -63,12 +74,14 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
         val product = decode(ctx.bodyAsString, PutProductDto::class).toDomain()
         service.save(product).fix().unsafeRunAsync {
             when (it) {
-                is Right -> ctx.response()
-                    .setStatusCode(HttpResponseStatus.CREATED.code())
-                    .end()
-                is Left  -> ctx.response()
-                    .setStatusCode(HttpResponseStatus.CONFLICT.code())
-                    .end()
+                is Right ->
+                    ctx.response()
+                        .setStatusCode(HttpResponseStatus.CREATED.code())
+                        .end()
+                is Left ->
+                    ctx.response()
+                        .setStatusCode(HttpResponseStatus.CONFLICT.code())
+                        .end()
             }
         }
     }
