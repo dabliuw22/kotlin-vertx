@@ -3,6 +3,7 @@
 .idea_modules
 /out
 /build
+**build**
 *.iml
 *.ipr
 *.iws

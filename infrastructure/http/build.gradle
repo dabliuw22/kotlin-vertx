@@ -6,6 +6,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "io.vertx:vertx-core"
     implementation "io.vertx:vertx-lang-kotlin"
+    implementation "io.vertx:vertx-web"
     implementation "io.arrow-kt:arrow-core"
     implementation "io.arrow-kt:arrow-syntax"
     kapt "io.arrow-kt:arrow-meta"

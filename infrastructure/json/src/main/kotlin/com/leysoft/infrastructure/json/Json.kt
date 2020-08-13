@@ -29,13 +29,6 @@ object Json {
         }
 
     @Throws(RuntimeException::class)
-    fun <A: Any> writeMap(data: A): Map<*, *> =
-        when (val result = Try { mapper.convertValue(data, Map::class.java) }) {
-            is Success -> result.value
-            is Failure -> throw RuntimeException(result.exception)
-        }
-
-    @Throws(RuntimeException::class)
     fun <A: Any> read(data: String, clazz: KClass<A>) : A =
         when (val result = Try { mapper.convertValue(data, clazz.java) }) {
             is Success -> result.value

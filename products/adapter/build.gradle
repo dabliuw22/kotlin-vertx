@@ -6,6 +6,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "io.vertx:vertx-core"
     implementation "io.vertx:vertx-lang-kotlin"
+    implementation "io.vertx:vertx-web"
     implementation "io.vertx:vertx-pg-client"
     implementation "io.arrow-kt:arrow-core"
     implementation "io.arrow-kt:arrow-syntax"
@@ -15,8 +16,9 @@ dependencies {
     kapt "io.arrow-kt:arrow-meta"
 
     implementation project (":infrastructure:infrastructure-http")
+    implementation project (":infrastructure:infrastructure-json")
     implementation project (":infrastructure:infrastructure-postgres")
 
+    implementation project (":products:products-application")
     implementation project (":products:products-domain")
-    implementation project (":products:products-adapter")
 }

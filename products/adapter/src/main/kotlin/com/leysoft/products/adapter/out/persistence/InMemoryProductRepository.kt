@@ -41,4 +41,10 @@ class InMemoryProductRepository<F> private constructor(
                 }
             )
         }
+
+    companion object {
+
+        fun <F> make(Q: Effect<F>, ref: Ref<F, Map<String, Product>>): ProductRepository<F> =
+            InMemoryProductRepository(Q, ref)
+    }
 }
