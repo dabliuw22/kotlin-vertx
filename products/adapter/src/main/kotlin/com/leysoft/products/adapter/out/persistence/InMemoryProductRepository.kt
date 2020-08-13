@@ -12,7 +12,8 @@ import java.lang.RuntimeException
 
 class InMemoryProductRepository<F> private constructor(
     private val Q: Effect<F>,
-    private val store: Ref<F, Map<String, Product>>):
+    private val store: Ref<F, Map<String, Product>>
+) :
     ProductRepository<F>, Effect<F> by Q {
 
     override fun findBy(id: ProductId): Kind<F, Option<Product>> = store.get()
@@ -24,9 +25,9 @@ class InMemoryProductRepository<F> private constructor(
     override fun save(product: Product): Kind<F, Unit> = store.get()
         .map { Option.fromNullable(it[product.id.value]) }
         .flatMap { result ->
-            when(result) {
+            when (result) {
                 is None -> store.update { it.plus(Pair(product.id.value, product)) }
-                else    -> raiseError(RuntimeException("Not save Product: ${product.id}"))
+                else -> raiseError(RuntimeException("Not save Product: ${product.id}"))
             }
         }
 

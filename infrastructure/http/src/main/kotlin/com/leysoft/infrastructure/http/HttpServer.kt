@@ -6,7 +6,7 @@ import io.vertx.core.http.HttpServerOptions
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 
-abstract class HttpServer: AbstractVerticle() {
+abstract class HttpServer : AbstractVerticle() {
 
     override fun start(startFuture: Future<Void>?) {
         val router = Router.router(vertx)

@@ -10,16 +10,14 @@ import com.leysoft.products.adapter.`in`.api.ProductRouter
 import com.leysoft.products.adapter.out.persistence.InMemoryProductRepository
 import com.leysoft.products.application.DefaultProductService
 import com.leysoft.products.domain.Product
-import com.leysoft.products.domain.ProductCreatedAt
 import com.leysoft.products.domain.ProductId
 import com.leysoft.products.domain.ProductName
 import com.leysoft.products.domain.ProductStock
 import io.vertx.core.Vertx
 import io.vertx.ext.web.Router
-import java.time.OffsetDateTime
 import java.util.UUID
 
-class Main: HttpServer() {
+class Main : HttpServer() {
 
     override fun port(): Int = 8080
 
@@ -43,8 +41,7 @@ class Main: HttpServer() {
         initId to Product(
             id = ProductId(initId),
             name = ProductName("Test"),
-            stock = ProductStock(20.0),
-            createdAt = ProductCreatedAt(OffsetDateTime.now())
+            stock = ProductStock(20.0)
         )
     )
 

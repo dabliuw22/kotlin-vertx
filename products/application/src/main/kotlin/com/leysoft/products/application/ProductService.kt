@@ -20,7 +20,8 @@ interface ProductService<F> {
 
 class DefaultProductService<F> private constructor(
     private val Q: Effect<F>,
-    private val repository: ProductRepository<F>):
+    private val repository: ProductRepository<F>
+) :
     ProductService<F>, Effect<F> by Q {
 
     override fun findBy(id: ProductId): Kind<F, Option<Product>> =
