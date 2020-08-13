@@ -36,10 +36,8 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
                         .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
                         .setStatusCode(HttpResponseStatus.OK.code())
                         .end(encode(it.b.map { products -> products.toDto() }))
-                is Left ->
-                    ctx.response()
-                        .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
-                        .end()
+                is Left  ->
+                    ctx.fail(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
             }
         }
     }
@@ -55,17 +53,11 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
                                     .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
                                     .setStatusCode(HttpResponseStatus.OK.code())
                                     .end(encode(product.t.toDto()))
-                            else ->
-                                ctx.response()
-                                    .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
-                                    .setStatusCode(HttpResponseStatus.NOT_FOUND.code())
-                                    .end()
+                            else    -> ctx.fail(HttpResponseStatus.NOT_FOUND.code())
                         }
                     }
-                    else ->
-                        ctx.response()
-                            .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
-                            .end()
+                    else     ->
+                        ctx.fail(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
                 }
             }
     }
@@ -78,10 +70,7 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
                     ctx.response()
                         .setStatusCode(HttpResponseStatus.CREATED.code())
                         .end()
-                is Left ->
-                    ctx.response()
-                        .setStatusCode(HttpResponseStatus.CONFLICT.code())
-                        .end()
+                is Left  -> ctx.fail(HttpResponseStatus.CONFLICT.code())
             }
         }
     }
@@ -97,10 +86,8 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
                         else ctx.response()
                             .setStatusCode(HttpResponseStatus.CONFLICT.code())
                             .end()
-                    else ->
-                        ctx.response()
-                            .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
-                            .end()
+                    else     ->
+                        ctx.fail(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
                 }
             }
     }
