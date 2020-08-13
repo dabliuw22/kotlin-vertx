@@ -31,8 +31,8 @@ class ProductRouter(private val service: ProductService<ForIO>): HttpJson() {
         service.findAll().fix().unsafeRunAsync {
             when (it) {
                 is Right -> ctx.response()
-                    .setStatusCode(HttpResponseStatus.OK.code())
                     .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
+                    .setStatusCode(HttpResponseStatus.OK.code())
                     .end(Json.encodePrettily(it.b.map { products ->  products.toDto() }))
                 is Left  -> ctx.response()
                     .setStatusCode(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
@@ -46,6 +46,7 @@ class ProductRouter(private val service: ProductService<ForIO>): HttpJson() {
             .fix().unsafeRunAsync {
                 when (it) {
                     is Right -> ctx.response()
+                        .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
                         .setStatusCode(HttpResponseStatus.OK.code())
                         .end(Json.encodePrettily(it.b.map { product -> product.toDto() }))
                     else     -> ctx.response()
