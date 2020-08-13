@@ -1,6 +1,7 @@
 plugins {
     id 'org.jetbrains.kotlin.jvm'
     id 'org.jlleitschuh.gradle.ktlint'
+    id 'com.github.johnrengelman.shadow'
 }
 
 allprojects {
@@ -15,11 +16,21 @@ allprojects {
 subprojects {
     apply plugin: 'org.jetbrains.kotlin.jvm'
     apply plugin: 'org.jlleitschuh.gradle.ktlint'
+    apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'kotlin-kapt'
 
     def vertx_version = "3.9.2"
     def arrow_version = "0.10.5"
     def jackson_version = "2.11.1"
+
+    buildscript {
+        repositories {
+            jcenter()
+        }
+        dependencies {
+            classpath 'com.github.jengelman.gradle.plugins:shadow:6.0.0'
+        }
+    }
 
     dependencies {
         implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
