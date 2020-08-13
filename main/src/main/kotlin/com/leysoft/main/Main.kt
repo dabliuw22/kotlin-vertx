@@ -1,7 +1,11 @@
 package com.leysoft.main
 
+import arrow.Kind
+import arrow.fx.ForIO
 import arrow.fx.IO
 import arrow.fx.Ref
+import arrow.fx.Resource
+import arrow.fx.extensions.io.bracket.bracket
 import arrow.fx.extensions.io.effect.effect
 import arrow.fx.extensions.io.monadDefer.monadDefer
 import arrow.fx.fix
@@ -51,8 +55,17 @@ class Main : HttpServer() {
 
         @JvmStatic
         fun main(args: Array<String>) {
+            /*program().use { vertx ->
+                IO.just(vertx.deployVerticle(Main::class.java.canonicalName))
+            }.fix().unsafeRunSync()*/
             val vertx = Vertx.vertx()
             vertx.deployVerticle(Main::class.java.canonicalName)
         }
+
+        private fun program() = Resource(acquire, release, IO.bracket())
+
+        private val acquire: () -> Kind<ForIO, Vertx> = { IO.just(Vertx.vertx()) }
+
+        private val release: (Vertx) -> Kind<ForIO, Unit> = { IO.just(it.close()) }
     }
 }
