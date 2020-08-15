@@ -6,6 +6,7 @@ import arrow.fx.typeclasses.Effect
 import com.leysoft.infrastructure.postgres.config.PgConfig
 import com.vladsch.kotlin.jdbc.Row
 import com.vladsch.kotlin.jdbc.SqlQuery
+import com.vladsch.kotlin.jdbc.Transaction
 
 object Postgres {
 
@@ -31,7 +32,10 @@ object Postgres {
         }
 
     fun <F> command(E: Effect<F>, command: SqlQuery): Kind<F, Int> =
+        transaction(E) { transaction -> transaction.update(command) }
+
+    fun <F> transaction(E: Effect<F>, program: (Transaction) -> Int): Kind<F, Int> =
         pgConfig.resource(E).use { session ->
-            E.just(session.transaction { it.update(command) })
+            E.just(session.transaction { program(it) })
         }
 }
