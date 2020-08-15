@@ -22,6 +22,9 @@ subprojects {
     def vertx_version = "3.9.2"
     def arrow_version = "0.10.5"
     def jackson_version = "2.11.1"
+    def kotlin_jdbc_version = "0.5.0"
+    def postgres_version = "42.2.10"
+    def hikari_version = "3.4.5"
 
     buildscript {
         repositories {
@@ -40,7 +43,9 @@ subprojects {
         implementation "io.vertx:vertx-core:$vertx_version"
         implementation "io.vertx:vertx-lang-kotlin:$vertx_version"
         implementation "io.vertx:vertx-web:$vertx_version"
-        implementation "io.vertx:vertx-pg-client:$vertx_version"
+        implementation "com.vladsch.kotlin-jdbc:kotlin-jdbc:$kotlin_jdbc_version"
+        implementation "org.postgresql:postgresql:$postgres_version"
+        implementation "com.zaxxer:HikariCP:$hikari_version"
         implementation "io.arrow-kt:arrow-core:$arrow_version"
         implementation "io.arrow-kt:arrow-syntax:$arrow_version"
         implementation "io.arrow-kt:arrow-fx:$arrow_version"
