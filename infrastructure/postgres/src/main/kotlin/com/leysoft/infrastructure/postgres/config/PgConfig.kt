@@ -1,11 +1,13 @@
 package com.leysoft.infrastructure.postgres.config
 
+import arrow.Kind
 import arrow.fx.Resource
 import arrow.fx.typeclasses.Bracket
 import com.vladsch.kotlin.jdbc.Session
 import com.vladsch.kotlin.jdbc.session
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import javax.sql.DataSource
 
 data class PgConfig(
     val url: String,
@@ -14,13 +16,20 @@ data class PgConfig(
     val poolMaxSize: Int
 ) {
 
-    fun <F> session(B: Bracket<F, Throwable>) = Resource(
-        { B.just(session()) },
-        { s -> B.just(s.close()) },
-        B
-    )
+    private val dataSource = dataSource(this)
 
-    fun session(): Session = session(dataSource(this))
+    fun <F> resource(B: Bracket<F, Throwable>): Resource<F, Throwable, Session> =
+        Resource(
+            acquire = acquire(B),
+            release = release(B),
+            BR = B
+        )
+
+    private fun <F> acquire(B: Bracket<F, Throwable>): () -> Kind<F, Session> =
+        { B.just(session(dataSource)) }
+
+    private fun <F> release(B: Bracket<F, Throwable>): (Session) -> Kind<F, Unit> =
+        { B.just(it.close()) }
 
     companion object {
 
@@ -34,6 +43,7 @@ data class PgConfig(
             return config
         }
 
-        private fun dataSource(pgConfig: PgConfig) = HikariDataSource(hikari(pgConfig))
+        private fun dataSource(pgConfig: PgConfig): DataSource =
+            HikariDataSource(hikari(pgConfig))
     }
 }
