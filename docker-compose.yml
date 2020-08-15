@@ -1,0 +1,14 @@
+version: "3"
+services:
+  db:
+    image: postgres
+    restart: always
+    container_name: "postgres_vertx"
+    environment:
+      - POSTGRES_USER=vertx
+      - POSTGRES_PASSWORD=vertx
+      - POSTGRES_DB=vertx_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql

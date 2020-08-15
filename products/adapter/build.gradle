@@ -3,6 +3,7 @@ dependencies {
     implementation "io.vertx:vertx-core"
     implementation "io.vertx:vertx-lang-kotlin"
     implementation "io.vertx:vertx-web"
+    implementation "com.vladsch.kotlin-jdbc:kotlin-jdbc"
     implementation "io.arrow-kt:arrow-core"
     implementation "io.arrow-kt:arrow-syntax"
     implementation "io.arrow-kt:arrow-fx"

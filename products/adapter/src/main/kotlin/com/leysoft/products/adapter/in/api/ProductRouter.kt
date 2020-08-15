@@ -70,7 +70,8 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
                     ctx.response()
                         .setStatusCode(HttpResponseStatus.CREATED.code())
                         .end()
-                is Left -> ctx.fail(HttpResponseStatus.CONFLICT.code())
+                is Left ->
+                    ctx.fail(HttpResponseStatus.CONFLICT.code())
             }
         }
     }

@@ -29,7 +29,7 @@ object Json {
 
     @Throws(JsonException::class)
     fun <A : Any> read(data: String, clazz: KClass<A>): A =
-        when (val result = Try { mapper.convertValue(data, clazz.java) }) {
+        when (val result = Try { mapper.readValue(data, clazz.java) }) {
             is Success -> result.value
             is Failure -> throw JsonException(result.exception)
         }

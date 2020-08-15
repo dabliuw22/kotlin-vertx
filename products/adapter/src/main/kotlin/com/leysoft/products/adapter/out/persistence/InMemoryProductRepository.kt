@@ -13,8 +13,7 @@ import java.lang.RuntimeException
 class InMemoryProductRepository<F> private constructor(
     private val Q: Effect<F>,
     private val store: Ref<F, Map<String, Product>>
-) :
-    ProductRepository<F>, Effect<F> by Q {
+) : ProductRepository<F>, Effect<F> by Q {
 
     override fun findBy(id: ProductId): Kind<F, Option<Product>> = store.get()
         .map { Option.fromNullable(it[id.value]) }

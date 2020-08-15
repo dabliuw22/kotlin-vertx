@@ -2,6 +2,7 @@ package com.leysoft.infrastructure.postgres.config
 
 import arrow.fx.Resource
 import arrow.fx.typeclasses.Bracket
+import com.vladsch.kotlin.jdbc.Session
 import com.vladsch.kotlin.jdbc.session
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
@@ -13,11 +14,13 @@ data class PgConfig(
     val poolMaxSize: Int
 ) {
 
-    fun <F> session(B: Bracket<F, Throwable>, pgConfig: PgConfig) = Resource(
-        { B.just(session(dataSource(pgConfig))) },
+    fun <F> session(B: Bracket<F, Throwable>) = Resource(
+        { B.just(session()) },
         { s -> B.just(s.close()) },
         B
     )
+
+    fun session(): Session = session(dataSource(this))
 
     companion object {
 
