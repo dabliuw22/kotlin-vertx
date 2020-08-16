@@ -11,6 +11,7 @@ import com.leysoft.core.error.NotFoundProductException
 import com.leysoft.products.domain.fromCore
 import com.leysoft.products.domain.persistence.ProductRepository
 import com.leysoft.products.domain.toCore
+import java.lang.RuntimeException
 
 interface ProductService<F> {
 
@@ -46,12 +47,18 @@ class DefaultProductService<F> private constructor(
         just(product)
             .map { it.fromCore() }
             .flatMap { repository.save(it) }
-            .handleError { throw CreateProductException("Error Creating the Product: $product") }
+            .handleError {
+                throw CreateProductException("Error Creating the Product: $product")
+            }
 
     override fun deleteBy(id: ProductId): Kind<F, Unit> =
-        repository.deleteBy(id.fromCore()).map {
-            if (!it) throw DeleteProductException("Error Deleting the Product: ${id.value}")
-        }
+        repository.deleteBy(id.fromCore())
+            .flatMap {
+                if (it) just(Unit)
+                else raiseError(RuntimeException())
+            }.handleError {
+                throw DeleteProductException("Error Deleting the Product: ${id.value}")
+            }
 
     companion object {
 
