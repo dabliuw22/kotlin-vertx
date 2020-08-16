@@ -12,6 +12,7 @@ dependencies {
     kapt "io.arrow-kt:arrow-meta"
 
     implementation project (":core:core-domain")
+    implementation project (":core:core-error")
 
     implementation project (":infrastructure:infrastructure-http")
     implementation project (":infrastructure:infrastructure-json")
