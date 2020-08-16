@@ -38,7 +38,7 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
                         .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
                         .setStatusCode(HttpResponseStatus.OK.code())
                         .end(encode(it.b.map { products -> products.toDto() }))
-                is Left -> errorHandler(ctx, it.a)
+                is Left -> errorHandler(ctx)(it.a)
             }
         }
     }
@@ -52,7 +52,7 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
                             .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
                             .setStatusCode(HttpResponseStatus.OK.code())
                             .end(encode(it.b.toDto()))
-                    is Left -> errorHandler(ctx, it.a)
+                    is Left -> errorHandler(ctx)(it.a)
                 }
             }
     }
@@ -65,7 +65,7 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
                     ctx.response()
                         .setStatusCode(HttpResponseStatus.CREATED.code())
                         .end()
-                is Left -> errorHandler(ctx, it.a)
+                is Left -> errorHandler(ctx)(it.a)
             }
         }
     }
@@ -78,17 +78,19 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
                         ctx.response()
                             .setStatusCode(HttpResponseStatus.OK.code())
                             .end()
-                    is Left -> errorHandler(ctx, it.a)
+                    is Left -> errorHandler(ctx)(it.a)
                 }
             }
     }
 
-    private fun errorHandler(ctx: RoutingContext, throwable: Throwable) {
-        when (throwable) {
-            is NotFoundProductException -> ctx.fail(HttpResponseStatus.NOT_FOUND.code())
-            is CreateProductException -> ctx.fail(HttpResponseStatus.CONFLICT.code())
-            is DeleteProductException -> ctx.fail(HttpResponseStatus.CONFLICT.code())
-            else -> ctx.fail(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
+    private val errorHandler: (RoutingContext) -> (Throwable) -> Unit = { ctx ->
+        { throwable ->
+            when (throwable) {
+                is NotFoundProductException -> ctx.fail(HttpResponseStatus.NOT_FOUND.code())
+                is CreateProductException -> ctx.fail(HttpResponseStatus.CONFLICT.code())
+                is DeleteProductException -> ctx.fail(HttpResponseStatus.CONFLICT.code())
+                else -> ctx.fail(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
+            }
         }
     }
 
