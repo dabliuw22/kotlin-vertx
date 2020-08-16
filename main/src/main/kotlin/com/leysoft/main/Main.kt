@@ -1,10 +1,6 @@
 package com.leysoft.main
 
-import arrow.Kind
-import arrow.fx.ForIO
 import arrow.fx.IO
-import arrow.fx.Resource
-import arrow.fx.extensions.io.bracket.bracket
 import arrow.fx.extensions.io.effect.effect
 import com.leysoft.infrastructure.http.HttpServer
 import com.leysoft.products.adapter.`in`.api.ProductRouter
@@ -17,13 +13,11 @@ class Main : HttpServer() {
 
     private val Q = IO.effect()
 
-    override fun port(): Int = 8080
+    override fun port(): Int = System.getenv("APP_PORT")?.toInt() ?: 8080
 
-    override fun host(): String = "localhost"
+    override fun host(): String = System.getenv("APP_HOST") ?: "localhost"
 
-    override fun routes(router: Router) {
-        products(router)
-    }
+    override fun routes(router: Router) = products(router)
 
     private fun products(router: Router) {
         val repository = SqlProductRepository.make(Q)
@@ -38,11 +32,5 @@ class Main : HttpServer() {
             val vertx = Vertx.vertx()
             vertx.deployVerticle(Main::class.java.canonicalName)
         }
-
-        private fun program() = Resource(acquire, release, IO.bracket())
-
-        private val acquire: () -> Kind<ForIO, Vertx> = { IO.just(Vertx.vertx()) }
-
-        private val release: (Vertx) -> Kind<ForIO, Unit> = { IO.just(it.close()) }
     }
 }

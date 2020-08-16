@@ -10,9 +10,11 @@ import com.leysoft.products.domain.ProductId
 import com.leysoft.products.domain.persistence.ProductRepository
 import java.lang.RuntimeException
 
+typealias Store<F> = Ref<F, Map<String, Product>>
+
 class InMemoryProductRepository<F> private constructor(
     private val Q: Effect<F>,
-    private val store: Ref<F, Map<String, Product>>
+    private val store: Store<F>
 ) : ProductRepository<F>, Effect<F> by Q {
 
     override fun findBy(id: ProductId): Kind<F, Option<Product>> = store.get()
