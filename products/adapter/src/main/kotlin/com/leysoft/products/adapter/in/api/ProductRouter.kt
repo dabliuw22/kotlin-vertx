@@ -44,7 +44,7 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
     }
 
     private fun getByIdHandler(ctx: RoutingContext) {
-        service.findBy(ProductId(ctx.request().getParam("productId")))
+        service.findBy(ProductId(ctx.request().getParam(ProductId)))
             .fix().unsafeRunAsync {
                 when (it) {
                     is Right ->
@@ -71,7 +71,7 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
     }
 
     private fun delByIdHandler(ctx: RoutingContext) {
-        service.deleteBy(ProductId(ctx.request().getParam("productId")))
+        service.deleteBy(ProductId(ctx.request().getParam(ProductId)))
             .fix().unsafeRunAsync {
                 when (it) {
                     is Right ->
@@ -93,7 +93,8 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
     }
 
     companion object {
+        private const val ProductId = "productId"
         private const val Products = "/products"
-        private const val ProductsById = "$Products/:productId"
+        private const val ProductsById = "$Products/:$ProductId"
     }
 }
