@@ -38,7 +38,7 @@ data class PgConfig(
             config.jdbcUrl = pgConfig.url
             config.username = pgConfig.user
             config.password = pgConfig.password
-            config.driverClassName = "org.postgresql.ds.PGSimpleDataSource"
+            config.driverClassName = "org.postgresql.Driver"
             config.maximumPoolSize = pgConfig.poolMaxSize
             return config
         }
