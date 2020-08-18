@@ -1,9 +1,9 @@
-package com.leysoft.products.adapter.out.persistence
+package com.leysoft.products.adapter.out.persistence.sql
 
 import arrow.Kind
 import arrow.core.Option
 import arrow.fx.typeclasses.Effect
-import com.leysoft.infrastructure.postgres.Postgres
+import com.leysoft.infrastructure.jdbc.Jdbc
 import com.leysoft.products.domain.Product
 import com.leysoft.products.domain.ProductCreatedAt
 import com.leysoft.products.domain.ProductId
@@ -18,16 +18,16 @@ class SqlProductRepository<F> private constructor(
 ) : ProductRepository<F>, Effect<F> by Q {
 
     override fun findBy(id: ProductId): Kind<F, Option<Product>> =
-        Postgres.option(Q, decoder, getById(id))
+        Jdbc.option(Q, decoder, getById(id))
 
     override fun findAll(): Kind<F, List<Product>> =
-        Postgres.list(Q, decoder, getAll())
+        Jdbc.list(Q, decoder, getAll())
 
     override fun save(product: Product): Kind<F, Unit> =
-        Postgres.command(Q, insert(product)).void()
+        Jdbc.command(Q, insert(product)).void()
 
     override fun deleteBy(id: ProductId): Kind<F, Boolean> =
-        Postgres.command(Q, delById(id)).map { it > 0 }
+        Jdbc.command(Q, delById(id)).map { it > 0 }
 
     companion object {
 
@@ -48,7 +48,7 @@ class SqlProductRepository<F> private constructor(
             id.value
         )
 
-        private val decoder: Postgres.Decoder<Product> = object : Postgres.Decoder<Product> {
+        private val decoder: Jdbc.Decoder<Product> = object : Jdbc.Decoder<Product> {
             override fun decode(row: Row): Product =
                 Product(
                     id = ProductId(row.string("id")),

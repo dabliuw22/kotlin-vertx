@@ -1,4 +1,4 @@
-package com.leysoft.products.adapter.out.persistence
+package com.leysoft.products.adapter.out.persistence.memory
 
 import arrow.Kind
 import arrow.core.None

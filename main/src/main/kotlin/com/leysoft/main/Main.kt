@@ -4,7 +4,7 @@ import arrow.fx.IO
 import arrow.fx.extensions.io.effect.effect
 import com.leysoft.infrastructure.http.HttpServer
 import com.leysoft.products.adapter.`in`.api.ProductRouter
-import com.leysoft.products.adapter.out.persistence.SqlProductRepository
+import com.leysoft.products.adapter.out.persistence.sql.SqlProductRepository
 import com.leysoft.products.application.DefaultProductService
 import io.vertx.core.Vertx
 import io.vertx.ext.web.Router

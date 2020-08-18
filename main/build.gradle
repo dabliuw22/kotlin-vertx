@@ -19,8 +19,8 @@ dependencies {
     implementation project (":core:core-error")
 
     implementation project (":infrastructure:infrastructure-http")
+    implementation project (":infrastructure:infrastructure-jdbc")
     implementation project (":infrastructure:infrastructure-json")
-    implementation project (":infrastructure:infrastructure-postgres")
 
     implementation project (":products:products-domain")
     implementation project (":products:products-application")

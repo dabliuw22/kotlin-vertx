@@ -1,4 +1,4 @@
-package com.leysoft.infrastructure.postgres.config
+package com.leysoft.infrastructure.jdbc.config
 
 import arrow.Kind
 import arrow.fx.Resource
@@ -9,10 +9,11 @@ import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import javax.sql.DataSource
 
-data class PgConfig(
+data class JdbcConfig(
     val url: String,
     val user: String,
     val password: String,
+    val driver: String,
     val poolMaxSize: Int
 ) {
 
@@ -33,17 +34,17 @@ data class PgConfig(
 
     companion object {
 
-        private fun hikari(pgConfig: PgConfig): HikariConfig {
+        private fun hikari(jdbcConfig: JdbcConfig): HikariConfig {
             val config = HikariConfig()
-            config.jdbcUrl = pgConfig.url
-            config.username = pgConfig.user
-            config.password = pgConfig.password
-            config.driverClassName = "org.postgresql.Driver"
-            config.maximumPoolSize = pgConfig.poolMaxSize
+            config.jdbcUrl = jdbcConfig.url
+            config.username = jdbcConfig.user
+            config.password = jdbcConfig.password
+            config.driverClassName = jdbcConfig.driver
+            config.maximumPoolSize = jdbcConfig.poolMaxSize
             return config
         }
 
-        private fun dataSource(pgConfig: PgConfig): DataSource =
-            HikariDataSource(hikari(pgConfig))
+        private fun dataSource(jdbcConfig: JdbcConfig): DataSource =
+            HikariDataSource(hikari(jdbcConfig))
     }
 }

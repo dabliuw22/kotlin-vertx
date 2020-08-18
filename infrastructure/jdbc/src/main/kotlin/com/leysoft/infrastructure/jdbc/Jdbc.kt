@@ -1,33 +1,26 @@
-package com.leysoft.infrastructure.postgres
+package com.leysoft.infrastructure.jdbc
 
 import arrow.Kind
 import arrow.core.Option
 import arrow.fx.typeclasses.Effect
-import com.leysoft.infrastructure.postgres.config.PgConfig
+import com.leysoft.infrastructure.jdbc.config.JdbcConfig
 import com.vladsch.kotlin.jdbc.Row
 import com.vladsch.kotlin.jdbc.SqlQuery
 import com.vladsch.kotlin.jdbc.Transaction
 
-object Postgres {
-
-    private val pgConfig = PgConfig(
-        System.getenv("DB_URL") ?: "jdbc:postgresql://localhost:5432/vertx_db",
-        System.getenv("DB_USER") ?: "vertx",
-        System.getenv("DB_PASSWORD") ?: "vertx",
-        System.getenv("DB_POOL_MAX_SIZE")?.toInt() ?: 10
-    )
+object Jdbc {
 
     interface Decoder<A> {
         fun decode(row: Row): A
     }
 
     fun <F, A> option(E: Effect<F>, decoder: Decoder<A>, query: SqlQuery): Kind<F, Option<A>> =
-        pgConfig.resource(E).use { session ->
+        jdbcConfig.resource(E).use { session ->
             E.just(Option.fromNullable(session.first(query) { row -> decoder.decode(row) }))
         }
 
     fun <F, A> list(E: Effect<F>, decoder: Decoder<A>, query: SqlQuery): Kind<F, List<A>> =
-        pgConfig.resource(E).use { session ->
+        jdbcConfig.resource(E).use { session ->
             E.just(session.list(query) { row -> decoder.decode(row) })
         }
 
@@ -35,7 +28,15 @@ object Postgres {
         transaction(E) { transaction -> transaction.update(command) }
 
     fun <F> transaction(E: Effect<F>, program: (Transaction) -> Int): Kind<F, Int> =
-        pgConfig.resource(E).use { session ->
+        jdbcConfig.resource(E).use { session ->
             E.just(session.transaction { program(it) })
         }
+
+    private val jdbcConfig = JdbcConfig(
+        System.getenv("DB_URL") ?: "jdbc:postgresql://localhost:5432/vertx_db",
+        System.getenv("DB_USER") ?: "vertx",
+        System.getenv("DB_PASSWORD") ?: "vertx",
+        System.getenv("DB_DRIVER") ?: "org.postgresql.Driver",
+        System.getenv("DB_POOL_MAX_SIZE")?.toInt() ?: 10
+    )
 }
