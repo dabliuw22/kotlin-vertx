@@ -5,7 +5,7 @@ plugins {
 }
 
 allprojects {
-    group 'org.example'
+    group 'com.leysoft'
     version '1.0-SNAPSHOT'
     repositories {
         mavenCentral()
