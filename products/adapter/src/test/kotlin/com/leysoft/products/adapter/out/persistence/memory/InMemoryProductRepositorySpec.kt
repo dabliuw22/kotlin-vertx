@@ -50,8 +50,8 @@ object InMemoryProductRepositorySpec : Spek({
 
     describe("InMemoryProductRepository.findAll") {
         it("Return One") {
-            val result = repository.findAll().fix().unsafeRunSync().size
-            assert(result == 1)
+            val result = repository.findAll().fix().unsafeRunSync()
+            assert(result == listOf(product))
         }
     }
 })
