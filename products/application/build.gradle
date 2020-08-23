@@ -3,6 +3,11 @@ dependencies {
     implementation "io.arrow-kt:arrow-core"
     implementation "io.arrow-kt:arrow-syntax"
     implementation "io.arrow-kt:arrow-fx"
+
+    testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin"
+    testImplementation "org.spekframework.spek2:spek-dsl-jvm"
+    testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5"
+
     kapt "io.arrow-kt:arrow-meta"
 
     implementation project (":core:core-domain")

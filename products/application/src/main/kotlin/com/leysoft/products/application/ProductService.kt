@@ -15,11 +15,11 @@ import java.lang.RuntimeException
 
 interface ProductService<F> {
 
-    fun findBy(id: ProductId): Kind<F, Product>
+    fun getBy(id: ProductId): Kind<F, Product>
 
-    fun findAll(): Kind<F, List<Product>>
+    fun getAll(): Kind<F, List<Product>>
 
-    fun save(product: Product): Kind<F, Unit>
+    fun create(product: Product): Kind<F, Unit>
 
     fun deleteBy(id: ProductId): Kind<F, Unit>
 }
@@ -29,7 +29,7 @@ class DefaultProductService<F> private constructor(
     private val repository: ProductRepository<F>
 ) : ProductService<F>, Effect<F> by Q {
 
-    override fun findBy(id: ProductId): Kind<F, Product> =
+    override fun getBy(id: ProductId): Kind<F, Product> =
         repository.findBy(id.fromCore())
             .map { it.map { product -> product.toCore() } }
             .map {
@@ -39,11 +39,11 @@ class DefaultProductService<F> private constructor(
                 }
             }
 
-    override fun findAll(): Kind<F, List<Product>> =
+    override fun getAll(): Kind<F, List<Product>> =
         repository.findAll()
             .map { it.map { product -> product.toCore() } }
 
-    override fun save(product: Product): Kind<F, Unit> =
+    override fun create(product: Product): Kind<F, Unit> =
         just(product)
             .map { it.fromCore() }
             .flatMap { repository.save(it) }

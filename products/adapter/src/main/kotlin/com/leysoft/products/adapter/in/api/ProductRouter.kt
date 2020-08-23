@@ -31,7 +31,7 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
     }
 
     private val allHandler: (RoutingContext) -> Unit = { ctx ->
-        service.findAll().fix().unsafeRunAsync {
+        service.getAll().fix().unsafeRunAsync {
             when (it) {
                 is Right ->
                     ctx.response()
@@ -44,7 +44,7 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
     }
 
     private val getByIdHandler: (RoutingContext) -> Unit = { ctx ->
-        service.findBy(ProductId(ctx.request().getParam(ProductId)))
+        service.getBy(ProductId(ctx.request().getParam(ProductId)))
             .fix().unsafeRunAsync {
                 when (it) {
                     is Right ->
@@ -59,7 +59,7 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
 
     private val createHandler: (RoutingContext) -> Unit = { ctx ->
         val product = decode(ctx.bodyAsString, PutProductDto::class).toDomain()
-        service.save(product).fix().unsafeRunAsync {
+        service.create(product).fix().unsafeRunAsync {
             when (it) {
                 is Right ->
                     ctx.response()

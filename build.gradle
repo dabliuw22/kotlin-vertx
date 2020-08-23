@@ -53,6 +53,7 @@ subprojects {
         implementation "io.arrow-kt:arrow-fx-rx2:$arrow_version"
         implementation "io.arrow-kt:arrow-fx-reactor:$arrow_version"
 
+        testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
         testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spek_version"
         testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spek_version"
 

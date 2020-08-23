@@ -35,9 +35,6 @@ object InMemoryProductRepositorySpec : Spek({
             }
             assert(status)
         }
-    }
-
-    describe("InMemoryProductRepository.findBy") {
         it("Return None") {
             val result = repository.findBy(ProductId()).fix().unsafeRunSync()
             val status = when (result) {
