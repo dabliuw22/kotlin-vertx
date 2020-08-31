@@ -2,6 +2,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     implementation "io.arrow-kt:arrow-core"
     implementation "io.arrow-kt:arrow-syntax"
+    implementation "io.arrow-kt:arrow-mtl"
+    implementation "io.arrow-kt:arrow-optics"
+    implementation "io.arrow-kt:arrow-optics-mtl"
     implementation "io.arrow-kt:arrow-fx"
     kapt "io.arrow-kt:arrow-meta"
 
