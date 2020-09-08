@@ -27,7 +27,7 @@ object Jdbc {
     fun <F> command(E: Effect<F>, command: SqlQuery): Kind<F, Int> =
         transaction(E) { transaction -> transaction.update(command) }
 
-    fun <F> transaction(E: Effect<F>, program: (Transaction) -> Int): Kind<F, Int> =
+    fun <F, A> transaction(E: Effect<F>, program: (Transaction) -> A): Kind<F, A> =
         jdbcConfig.resource(E).use { session ->
             E.just(session.transaction { program(it) })
         }
