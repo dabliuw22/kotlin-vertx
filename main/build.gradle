@@ -1,9 +1,10 @@
 apply plugin: 'application'
 
-mainClassName = "com.leysoft.main.Main"
+mainClassName = "com.leysoft.main.MainIO"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     implementation "io.vertx:vertx-core"
     implementation "io.vertx:vertx-lang-kotlin"
     implementation "com.vladsch.kotlin-jdbc:kotlin-jdbc"

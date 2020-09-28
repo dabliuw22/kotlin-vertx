@@ -1,9 +1,13 @@
 package com.leysoft.products.domain
 
+import arrow.optics.optics
 import java.time.OffsetDateTime
 import java.util.UUID
 
-data class ProductId(val value: String = UUID.randomUUID().toString())
+@optics
+data class ProductId(val value: String = UUID.randomUUID().toString()) {
+    companion object
+}
 
 typealias ProductIdCore = com.leysoft.core.domain.ProductId
 
@@ -11,7 +15,10 @@ fun ProductId.toCore(): ProductIdCore = ProductIdCore(value)
 
 fun ProductIdCore.fromCore(): ProductId = ProductId(value)
 
-data class ProductName(val value: String)
+@optics
+data class ProductName(val value: String) {
+    companion object
+}
 
 typealias ProductNameCore = com.leysoft.core.domain.ProductName
 
@@ -19,7 +26,10 @@ fun ProductName.toCore(): ProductNameCore = ProductNameCore(value)
 
 fun ProductNameCore.fromCore(): ProductName = ProductName(value)
 
-data class ProductStock(val value: Double)
+@optics
+data class ProductStock(val value: Double) {
+    companion object
+}
 
 typealias ProductStockCore = com.leysoft.core.domain.ProductStock
 
@@ -27,7 +37,10 @@ fun ProductStock.toCore(): ProductStockCore = ProductStockCore(value)
 
 fun ProductStockCore.fromCore(): ProductStock = ProductStock(value)
 
-data class ProductCreatedAt(val value: OffsetDateTime = OffsetDateTime.now())
+@optics
+data class ProductCreatedAt(val value: OffsetDateTime = OffsetDateTime.now()) {
+    companion object
+}
 
 typealias ProductCreatedAtCore = com.leysoft.core.domain.ProductCreatedAt
 
@@ -35,12 +48,15 @@ fun ProductCreatedAt.toCore(): ProductCreatedAtCore = ProductCreatedAtCore(value
 
 fun ProductCreatedAtCore.fromCore(): ProductCreatedAt = ProductCreatedAt(value)
 
+@optics
 data class Product(
     val id: ProductId = ProductId(),
     val name: ProductName,
     val stock: ProductStock,
     val createdAt: ProductCreatedAt = ProductCreatedAt()
-)
+) {
+    companion object
+}
 
 typealias ProductCore = com.leysoft.core.domain.Product
 

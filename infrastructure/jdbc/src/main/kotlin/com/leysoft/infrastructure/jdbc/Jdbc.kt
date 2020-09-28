@@ -2,34 +2,62 @@ package com.leysoft.infrastructure.jdbc
 
 import arrow.Kind
 import arrow.core.Option
+import arrow.core.Try
 import arrow.fx.typeclasses.Effect
 import com.leysoft.infrastructure.jdbc.config.JdbcConfig
 import com.vladsch.kotlin.jdbc.Row
 import com.vladsch.kotlin.jdbc.SqlQuery
 import com.vladsch.kotlin.jdbc.Transaction
+import kotlinx.coroutines.Dispatchers
+import kotlin.coroutines.CoroutineContext
 
 object Jdbc {
+
+    private val io: CoroutineContext = Dispatchers.IO
 
     interface Decoder<A> {
         fun decode(row: Row): A
     }
 
-    fun <F, A> option(E: Effect<F>, decoder: Decoder<A>, query: SqlQuery): Kind<F, Option<A>> =
+    fun <F, A> option(
+        E: Effect<F>,
+        decoder: Decoder<A>,
+        query: SqlQuery
+    ): Kind<F, Option<A>> =
         jdbcConfig.resource(E).use { session ->
-            E.just(Option.fromNullable(session.first(query) { row -> decoder.decode(row) }))
+            E.later(io) {
+                val result = session.first(query) { decoder.decode(it) }
+                Option.fromNullable(result)
+            }
         }
 
-    fun <F, A> list(E: Effect<F>, decoder: Decoder<A>, query: SqlQuery): Kind<F, List<A>> =
+    fun <F, A> list(
+        E: Effect<F>,
+        decoder: Decoder<A>,
+        query: SqlQuery
+    ): Kind<F, List<A>> =
         jdbcConfig.resource(E).use { session ->
-            E.just(session.list(query) { row -> decoder.decode(row) })
+            E.run {
+                laterOrRaise(io) {
+                    Try {
+                        session.list(query) { decoder.decode(it) }
+                    }.toEither()
+                }
+            }
         }
 
-    fun <F> command(E: Effect<F>, command: SqlQuery): Kind<F, Int> =
+    fun <F> command(
+        E: Effect<F>,
+        command: SqlQuery
+    ): Kind<F, Int> =
         transaction(E) { transaction -> transaction.update(command) }
 
-    fun <F, A> transaction(E: Effect<F>, program: (Transaction) -> A): Kind<F, A> =
+    fun <F, A> transaction(
+        E: Effect<F>,
+        program: (Transaction) -> A
+    ): Kind<F, A> =
         jdbcConfig.resource(E).use { session ->
-            E.just(session.transaction { program(it) })
+            E.later(io) { session.transaction { program(it) } }
         }
 
     private val jdbcConfig = JdbcConfig(

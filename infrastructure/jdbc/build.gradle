@@ -1,5 +1,6 @@
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     implementation "com.vladsch.kotlin-jdbc:kotlin-jdbc"
     implementation "com.zaxxer:HikariCP"
     implementation "org.postgresql:postgresql"

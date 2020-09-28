@@ -5,9 +5,6 @@ import arrow.core.Either.Right
 import arrow.fx.ForIO
 import arrow.fx.fix
 import com.leysoft.core.domain.ProductId
-import com.leysoft.core.error.CreateProductException
-import com.leysoft.core.error.DeleteProductException
-import com.leysoft.core.error.NotFoundProductException
 import com.leysoft.infrastructure.http.HttpJson
 import com.leysoft.products.application.ProductService
 import io.netty.handler.codec.http.HttpResponseStatus
@@ -16,7 +13,7 @@ import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 
-class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
+class ProductRouterIO(private val service: ProductService<ForIO>) : HttpJson() {
 
     fun routers(router: Router) {
         router.route(HttpMethod.GET, Products)
@@ -81,17 +78,6 @@ class ProductRouter(private val service: ProductService<ForIO>) : HttpJson() {
                     is Left -> errorHandler(ctx)(it.a)
                 }
             }
-    }
-
-    private val errorHandler: (RoutingContext) -> (Throwable) -> Unit = { ctx ->
-        { throwable ->
-            when (throwable) {
-                is NotFoundProductException -> ctx.fail(HttpResponseStatus.NOT_FOUND.code())
-                is CreateProductException -> ctx.fail(HttpResponseStatus.CONFLICT.code())
-                is DeleteProductException -> ctx.fail(HttpResponseStatus.CONFLICT.code())
-                else -> ctx.fail(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
-            }
-        }
     }
 
     companion object {
