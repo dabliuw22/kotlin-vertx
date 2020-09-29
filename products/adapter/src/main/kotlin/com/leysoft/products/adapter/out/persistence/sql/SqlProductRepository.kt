@@ -4,6 +4,8 @@ import arrow.Kind
 import arrow.core.Option
 import arrow.fx.typeclasses.Effect
 import com.leysoft.infrastructure.jdbc.Jdbc
+import com.leysoft.infrastructure.logger.Logger
+import com.leysoft.infrastructure.logger.LoggerFactory
 import com.leysoft.products.domain.Product
 import com.leysoft.products.domain.ProductCreatedAt
 import com.leysoft.products.domain.ProductId
@@ -17,8 +19,13 @@ class SqlProductRepository<F> private constructor(
     private val Q: Effect<F>
 ) : ProductRepository<F>, Effect<F> by Q {
 
+    private val log: Logger<F> = LoggerFactory.getLogger(Q, "SqlProductRepository")
+
     override fun findBy(id: ProductId): Kind<F, Option<Product>> =
-        Jdbc.option(Q, decoder, getById(id))
+        log.info("Init findBy")
+            .flatMap { Jdbc.option(Q, decoder, getById(id)) }
+            .guarantee(log.info("End findBy"))
+            .onError { error -> log.error("Error findBy: $error") }
 
     override fun findAll(): Kind<F, List<Product>> =
         Jdbc.list(Q, decoder, getAll())

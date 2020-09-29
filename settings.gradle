@@ -20,6 +20,8 @@ include 'infrastructure:http'
 project(':infrastructure:http').name = 'infrastructure-http'
 include 'infrastructure:jdbc'
 project(':infrastructure:jdbc').name = 'infrastructure-jdbc'
+include 'infrastructure:logger'
+project(':infrastructure:logger').name = 'infrastructure-logger'
 
 include 'products:domain'
 project(':products:domain').name = 'products-domain'
