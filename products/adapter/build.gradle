@@ -6,9 +6,6 @@ dependencies {
     implementation "com.vladsch.kotlin-jdbc:kotlin-jdbc"
     implementation "io.arrow-kt:arrow-core"
     implementation "io.arrow-kt:arrow-syntax"
-    implementation "io.arrow-kt:arrow-fx"
-    implementation "io.arrow-kt:arrow-fx-rx2"
-    implementation "io.arrow-kt:arrow-fx-reactor"
 
     testImplementation "org.spekframework.spek2:spek-dsl-jvm"
     testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5"
