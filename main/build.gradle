@@ -25,6 +25,7 @@ dependencies {
     implementation project (":infrastructure:infrastructure-http")
     implementation project (":infrastructure:infrastructure-jdbc")
     implementation project (":infrastructure:infrastructure-json")
+    implementation project (":infrastructure:infrastructure-logger")
 
     implementation project (":products:products-domain")
     implementation project (":products:products-application")
