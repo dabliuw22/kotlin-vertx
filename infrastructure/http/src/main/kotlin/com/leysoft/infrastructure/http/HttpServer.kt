@@ -3,6 +3,7 @@ package com.leysoft.infrastructure.http
 import io.vertx.core.AbstractVerticle
 import io.vertx.core.Future
 import io.vertx.core.Promise
+import io.vertx.core.http.HttpHeaders
 import io.vertx.core.http.HttpMethod
 import io.vertx.core.http.HttpServerOptions
 import io.vertx.ext.web.Router
@@ -44,7 +45,7 @@ abstract class HttpServer : AbstractVerticle() {
                     HttpMethod.PUT
                 )
             )
-            .allowedHeader("Content-Type")
+            .allowedHeader(HttpHeaders.CONTENT_TYPE.toString())
 
     private fun options(): HttpServerOptions =
         HttpServerOptions()
