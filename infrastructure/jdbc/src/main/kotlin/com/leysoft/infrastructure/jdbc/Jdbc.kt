@@ -26,8 +26,8 @@ object Jdbc {
     ): Kind<F, Option<A>> =
         jdbcConfig.resource(E).use { session ->
             E.later(io) {
-                val result = session.first(query) { decoder.decode(it) }
-                Option.fromNullable(result)
+                session.first(query) { decoder.decode(it) }
+                    .let { Option.fromNullable(it) }
             }
         }
 
