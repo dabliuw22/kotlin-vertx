@@ -1,14 +1,13 @@
 package com.leysoft.infrastructure.json
 
-import arrow.core.Failure
-import arrow.core.Success
-import arrow.core.Try
+import arrow.core.Either
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
+import java.lang.Exception
 import kotlin.reflect.KClass
 
 object Json {
@@ -20,18 +19,20 @@ object Json {
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 
-    @Throws(JsonException::class)
-    fun <A : Any> write(data: A): String =
-        when (val result = Try { mapper.writeValueAsString(data) }) {
-            is Success -> result.value
-            is Failure -> throw JsonException(result.exception)
+    fun <A : Any> write(data: A): Either<JsonException, String> =
+        try {
+            val json = mapper.writeValueAsString(data)
+            Either.right(json)
+        } catch (e: Exception) {
+            Either.left(JsonException(e))
         }
 
-    @Throws(JsonException::class)
-    fun <A : Any> read(data: String, clazz: KClass<A>): A =
-        when (val result = Try { mapper.readValue(data, clazz.java) }) {
-            is Success -> result.value
-            is Failure -> throw JsonException(result.exception)
+    fun <A : Any> read(data: String, clazz: KClass<A>): Either<JsonException, A> =
+        try {
+            val result = mapper.readValue(data, clazz.java)
+            Either.right(result)
+        } catch (e: Exception) {
+            Either.left(JsonException(e))
         }
 
     data class JsonException(val throwable: Throwable) : RuntimeException(throwable)
