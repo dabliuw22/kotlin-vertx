@@ -19,6 +19,7 @@
     <logger name="ch.qos.logback" level="WARN"/>
     <logger name="com.zaxxer.hikari" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
+    <logger name="io.vertx" level="INFO"/>
     <logger name="reactor.util" level="INFO"/>
     <root level="all">
         <appender-ref ref="stdOut"/>

@@ -19,7 +19,7 @@ subprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     apply plugin: 'kotlin-kapt'
 
-    def vertx_version = "3.9.2"
+    def vertx_version = "4.0.0"
     def arrow_version = "0.10.5"
     def jackson_version = "2.11.1"
     def kotlin_jdbc_version = "0.5.0"
@@ -49,6 +49,7 @@ subprojects {
         implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jackson_version"
         implementation "io.vertx:vertx-core:$vertx_version"
         implementation "io.vertx:vertx-lang-kotlin:$vertx_version"
+        implementation "io.vertx:vertx-lang-kotlin-coroutines:$vertx_version"
         implementation "io.vertx:vertx-web:$vertx_version"
         implementation "com.vladsch.kotlin-jdbc:kotlin-jdbc:$kotlin_jdbc_version"
         implementation "org.postgresql:postgresql:$postgres_version"

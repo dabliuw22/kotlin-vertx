@@ -1,7 +1,5 @@
 package com.leysoft.infrastructure.http
 
-import io.vertx.core.AbstractVerticle
-import io.vertx.core.Future
 import io.vertx.core.Promise
 import io.vertx.core.http.HttpHeaders
 import io.vertx.core.http.HttpMethod
@@ -9,8 +7,9 @@ import io.vertx.core.http.HttpServerOptions
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.CorsHandler
+import io.vertx.kotlin.coroutines.CoroutineVerticle
 
-abstract class HttpServer : AbstractVerticle() {
+abstract class HttpServer : CoroutineVerticle() {
 
     abstract fun port(): Int
 
@@ -18,7 +17,7 @@ abstract class HttpServer : AbstractVerticle() {
 
     abstract fun routes(router: Router)
 
-    override fun start(startFuture: Future<Void>?) {
+    override suspend fun start() {
         val promise: Promise<Void> = Promise.promise()
         val router: Router = Router.router(vertx)
         router.route()
