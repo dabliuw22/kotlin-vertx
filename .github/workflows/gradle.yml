@@ -23,6 +23,6 @@ jobs:
         java-version: '11'
         cache: 'gradle'
     - name: Test with Gradle
-      run: ./gradlew test --no-daemon
+      run: ./gradlew test
     - name: Build with Gradle
-      run: ./gradlew shadowJar --no-daemon
+      run: ./gradlew shadowJar
