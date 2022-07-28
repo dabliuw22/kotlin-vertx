@@ -28,15 +28,15 @@ class ProductRoute<F> (
             .handler { delByIdHandler(it) }
     }
 
-    private val allHandler: (RoutingContext) -> Unit = { ctx ->
+    private val allHandler: RoutingContext.() -> Unit = {
         service.getAll().handle(
             {
-                ctx.response()
+                response()
                     .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
                     .setStatusCode(HttpResponseStatus.OK.code())
                     .end(encode(it.map { products -> products.toDto() }))
             }
-        ) { errorHandler(ctx) }
+        ) { errorHandler(this) }
     }
 
     private val getByIdHandler: (RoutingContext) -> Unit = { ctx ->
@@ -59,13 +59,13 @@ class ProductRoute<F> (
             }) { errorHandler(ctx) }
     }
 
-    private val delByIdHandler: (RoutingContext) -> Unit = { ctx ->
-        service.deleteBy(ProductId(ctx.request().getParam(ProductId))).handle(
+    private val delByIdHandler: RoutingContext.() -> Unit = {
+        service.deleteBy(ProductId(request().getParam(ProductId))).handle(
             {
-                ctx.response()
+                response()
                     .setStatusCode(HttpResponseStatus.OK.code())
                     .end()
-            }) { errorHandler(ctx) }
+            }) { errorHandler(this) }
     }
 
     companion object {
