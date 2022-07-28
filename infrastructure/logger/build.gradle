@@ -1,9 +1,9 @@
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
     implementation "io.arrow-kt:arrow-core"
     implementation "io.arrow-kt:arrow-syntax"
     implementation "org.slf4j:slf4j-api"
     implementation "ch.qos.logback:logback-classic"
     implementation "ch.qos.logback:logback-core"
-    kapt "io.arrow-kt:arrow-meta"
+    //kapt "io.arrow-kt:arrow-meta"
 }

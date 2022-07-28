@@ -1,5 +1,5 @@
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
     implementation "io.vertx:vertx-core"
     implementation "io.vertx:vertx-lang-kotlin"
     implementation "io.vertx:vertx-lang-kotlin-coroutines"
@@ -11,7 +11,7 @@ dependencies {
     testImplementation "org.spekframework.spek2:spek-dsl-jvm"
     testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5"
 
-    kapt "io.arrow-kt:arrow-meta"
+    //kapt "io.arrow-kt:arrow-meta"
 
     implementation project (":core:core-domain")
     implementation project (":core:core-error")
