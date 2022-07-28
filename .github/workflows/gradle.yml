@@ -21,8 +21,8 @@ jobs:
       with:
         distribution: 'adopt'
         java-version: '11'
-        cache: gradle
+        cache: 'gradle'
     - name: Test with Gradle
-      run: ./gradlew test
+      run: ./gradlew test --no-daemon
     - name: Build with Gradle
-      run: ./gradlew shadowJar
+      run: ./gradlew shadowJar --no-daemon
