@@ -32,14 +32,13 @@ class MainIO : HttpServer() {
     }
 
     companion object {
-
         private val Q = IO.effect()
 
         private val io = IO.dispatchers().io()
 
         private val handler = IO.handler()
 
-        private val log = LoggerFactory.getLogger(Q, MainIO::class)
+        private val log = LoggerFactory.getLogger<MainIO, ForIO>(Q)
 
         @JvmStatic
         fun main(args: Array<String>) {

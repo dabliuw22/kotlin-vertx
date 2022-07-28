@@ -19,7 +19,7 @@ class SqlProductRepository<F> private constructor(
     private val Q: Effect<F>
 ) : ProductRepository<F>, Effect<F> by Q {
 
-    private val log: Logger<F> = LoggerFactory.getLogger(Q, SqlProductRepository::class)
+    private val log: Logger<F> = LoggerFactory.getLogger<SqlProductRepository<F>, F>(Q)
 
     override fun findBy(id: ProductId): Kind<F, Option<Product>> =
         log.info("Init findBy")

@@ -40,7 +40,7 @@ class MainMono : HttpServer() {
 
         private val handler = MonoK.handler()
 
-        private val log = LoggerFactory.getLogger(Q, MainMono::class)
+        private val log = LoggerFactory.getLogger<MainMono, ForMonoK>(Q)
 
         @JvmStatic
         fun main(args: Array<String>) {

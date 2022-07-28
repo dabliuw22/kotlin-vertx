@@ -7,12 +7,12 @@ import kotlin.reflect.KClass
 
 object LoggerFactory {
 
-    fun <F> getLogger(Q: Effect<F>, clazz: KClass<*>): Logger<F> =
-        DefaultLogger.make(Q, clazz)
+    inline fun <reified A, F> getLogger(Q: Effect<F>): Logger<F> =
+        DefaultLogger.make(Q, A::class)
 
-    private class DefaultLogger<F> private constructor (
+    class DefaultLogger<F> private constructor (
         private val Q: Effect<F>,
-        private val clazz: KClass<*>
+        clazz: KClass<*>
     ) : Logger<F> {
 
         private val logger = LoggerFactory.getLogger(clazz.java)
@@ -36,7 +36,6 @@ object LoggerFactory {
             Q.defer { Q.effect { logger.trace(message) } }
 
         companion object {
-
             fun <F> make(Q: Effect<F>, clazz: KClass<*>): Logger<F> =
                 DefaultLogger(Q, clazz)
         }
