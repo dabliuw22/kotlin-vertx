@@ -11,7 +11,7 @@ import io.vertx.core.http.HttpMethod
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 
-class ProductRoute<F> (
+class ProductRoute<F>(
     private val H: HttpHandler<F>,
     private val service: ProductService<F>
 ) : HttpJson(), HttpRoute, HttpHandler<F> by H {
@@ -46,17 +46,19 @@ class ProductRoute<F> (
                     .putHeader(HttpHeaders.CONTENT_TYPE, ApplicationJson)
                     .setStatusCode(HttpResponseStatus.OK.code())
                     .end(encode(it.toDto()))
-            }) { errorHandler(ctx) }
+            }
+        ) { errorHandler(ctx) }
     }
 
     private val createHandler: (RoutingContext) -> Unit = { ctx ->
-        val product = decode(ctx.bodyAsString, PutProductDto::class).toDomain()
+        val product = decode<PutProductDto>(ctx.bodyAsString).toDomain()
         service.create(product).handle(
             {
                 ctx.response()
                     .setStatusCode(HttpResponseStatus.CREATED.code())
                     .end()
-            }) { errorHandler(ctx) }
+            }
+        ) { errorHandler(ctx) }
     }
 
     private val delByIdHandler: RoutingContext.() -> Unit = {
@@ -65,7 +67,8 @@ class ProductRoute<F> (
                 response()
                     .setStatusCode(HttpResponseStatus.OK.code())
                     .end()
-            }) { errorHandler(this) }
+            }
+        ) { errorHandler(this) }
     }
 
     companion object {

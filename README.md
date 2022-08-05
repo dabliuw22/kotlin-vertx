@@ -16,7 +16,8 @@ $ docker-compose up -d
 
 ## Apply Formatter
 ```shell
-$ gradle ktlintFormat
+$ gradle formatKotlin
+$ gradle lintKotlin
 ```
 
 ## Run With Gradle

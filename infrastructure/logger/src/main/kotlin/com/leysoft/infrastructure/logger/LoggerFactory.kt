@@ -10,7 +10,7 @@ object LoggerFactory {
     inline fun <reified A, F> getLogger(Q: Effect<F>): Logger<F> =
         DefaultLogger.make(Q, A::class)
 
-    class DefaultLogger<F> private constructor (
+    class DefaultLogger<F> private constructor(
         private val Q: Effect<F>,
         clazz: KClass<*>
     ) : Logger<F> {

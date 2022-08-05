@@ -1,9 +1,13 @@
 dependencies {
+    implementation project (":core:core-domain")
+    implementation project (":core:core-error")
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
     implementation "io.arrow-kt:arrow-core"
     implementation "io.arrow-kt:arrow-syntax"
-    implementation "org.slf4j:slf4j-api"
+    implementation "org.codehaus.groovy:groovy-all"
     implementation "ch.qos.logback:logback-classic"
     implementation "ch.qos.logback:logback-core"
+    implementation "net.logstash.logback:logstash-logback-encoder"
     //kapt "io.arrow-kt:arrow-meta"
 }

@@ -1,7 +1,5 @@
 package com.leysoft.core.error
 
-import java.lang.RuntimeException
-
 abstract class ProductException(
     override val message: String
 ) : RuntimeException(message)
