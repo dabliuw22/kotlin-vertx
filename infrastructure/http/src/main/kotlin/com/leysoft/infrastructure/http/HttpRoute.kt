@@ -1,8 +1,7 @@
 package com.leysoft.infrastructure.http
 
-import io.vertx.ext.web.Router
+import io.ktor.server.application.Application
 
 interface HttpRoute {
-
-    fun route(router: Router)
+    fun Application.route()
 }

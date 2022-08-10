@@ -7,14 +7,14 @@ open class HttpJson {
 
     fun <A : Any> encode(data: A): String =
         when (val json = Json.write(data)) {
-            is Either.Right -> json.b
-            is Either.Left -> throw json.a
+            is Either.Right -> json.value
+            is Either.Left -> throw json.value
         }
 
     inline fun <reified A : Any> decode(data: String): A =
-        when (val result = Json.read(data, A::class)) {
-            is Either.Right -> result.b
-            is Either.Left -> throw result.a
+        when (val result = Json.read<A>(data)) {
+            is Either.Right -> result.value
+            is Either.Left -> throw result.value
         }
 
     companion object {
