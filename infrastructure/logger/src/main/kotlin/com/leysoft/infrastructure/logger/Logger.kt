@@ -1,18 +1,31 @@
 package com.leysoft.infrastructure.logger
 
-import arrow.Kind
+import org.slf4j.LoggerFactory
 
-interface Logger<F> {
+interface Logger {
+    fun info(message: String)
+    fun error(message: String)
+    fun error(message: String, throwable: Throwable)
+    fun debug(message: String)
+    fun warn(message: String)
+    fun trace(message: String)
 
-    fun info(message: String): Kind<F, Unit>
+    companion object {
+        inline fun <reified A> get(): Logger = object : Logger {
+            private val logger = LoggerFactory.getLogger(A::class.java)
 
-    fun error(message: String): Kind<F, Unit>
+            override fun info(message: String) = logger.info(message)
 
-    fun error(message: String, throwable: Throwable): Kind<F, Unit>
+            override fun error(message: String) = logger.error(message)
 
-    fun debug(message: String): Kind<F, Unit>
+            override fun error(message: String, throwable: Throwable) =
+                logger.error(message, throwable)
 
-    fun warn(message: String): Kind<F, Unit>
+            override fun debug(message: String) = logger.debug(message)
 
-    fun trace(message: String): Kind<F, Unit>
+            override fun warn(message: String) = logger.warn(message)
+
+            override fun trace(message: String) = logger.trace(message)
+        }
+    }
 }
