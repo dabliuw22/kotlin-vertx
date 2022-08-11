@@ -1,17 +1,34 @@
 package com.leysoft.products.adapter.`in`.api
 
 import com.leysoft.core.error.*
+import com.leysoft.infrastructure.http.ErrorResponse
+import com.leysoft.infrastructure.http.HttpErrorHandler
+import com.leysoft.infrastructure.http.respondJson
 import io.ktor.http.*
-import io.ktor.server.application.*
 
-val errorHandler: suspend ApplicationCall.() -> (Throwable) -> Unit = {
+val errorHandler: HttpErrorHandler<Throwable> = {
     { throwable ->
         when (throwable) {
-            is NotFoundProductException -> response.status(HttpStatusCode.NotFound)
-            is CreateProductException -> response.status(HttpStatusCode.Conflict)
-            is DeleteProductException -> response.status(HttpStatusCode.Conflict)
-            is CustomProductException -> response.status(HttpStatusCode.Conflict)
-            else -> response.status(HttpStatusCode.InternalServerError)
+            is NotFoundProductException -> respondJson(
+                HttpStatusCode.NotFound,
+                ErrorResponse(throwable.message)
+            )
+            is CreateProductException -> respondJson(
+                HttpStatusCode.Conflict,
+                ErrorResponse(throwable.message)
+            )
+            is DeleteProductException -> respondJson(
+                HttpStatusCode.Conflict,
+                ErrorResponse(throwable.message)
+            )
+            is CustomProductException -> respondJson(
+                HttpStatusCode.Conflict,
+                ErrorResponse(throwable.message)
+            )
+            else -> respondJson(
+                HttpStatusCode.InternalServerError,
+                ErrorResponse(throwable.message ?: "Internal Server Error")
+            )
         }
     }
 }
