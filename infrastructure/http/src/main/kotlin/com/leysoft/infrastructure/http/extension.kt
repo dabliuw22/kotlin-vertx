@@ -9,7 +9,7 @@ import io.ktor.server.response.*
 
 suspend fun <L, R> Either<L, R>.handle(
     success: suspend (R) -> Unit,
-    failure: suspend (L) -> Unit
+    failure: (L) -> Unit
 ): Unit =
     when (val result = this) {
         is Either.Right -> success(result.value)
