@@ -1,18 +1,17 @@
 package com.leysoft.products.adapter.`in`.api
 
-import com.leysoft.core.error.CreateProductException
-import com.leysoft.core.error.DeleteProductException
-import com.leysoft.core.error.NotFoundProductException
-import io.netty.handler.codec.http.HttpResponseStatus
-import io.vertx.ext.web.RoutingContext
+import com.leysoft.core.error.*
+import io.ktor.http.*
+import io.ktor.server.application.*
 
-val errorHandler: (RoutingContext) -> (Throwable) -> Unit = { ctx ->
+val errorHandler: suspend ApplicationCall.() -> (Throwable) -> Unit = {
     { throwable ->
         when (throwable) {
-            is NotFoundProductException -> ctx.fail(HttpResponseStatus.NOT_FOUND.code())
-            is CreateProductException -> ctx.fail(HttpResponseStatus.CONFLICT.code())
-            is DeleteProductException -> ctx.fail(HttpResponseStatus.CONFLICT.code())
-            else -> ctx.fail(HttpResponseStatus.INTERNAL_SERVER_ERROR.code())
+            is NotFoundProductException -> response.status(HttpStatusCode.NotFound)
+            is CreateProductException -> response.status(HttpStatusCode.Conflict)
+            is DeleteProductException -> response.status(HttpStatusCode.Conflict)
+            is CustomProductException -> response.status(HttpStatusCode.Conflict)
+            else -> response.status(HttpStatusCode.InternalServerError)
         }
     }
 }
