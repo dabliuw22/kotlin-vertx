@@ -13,15 +13,17 @@ import io.ktor.server.routing.*
 
 fun Application.products(service: ProductService) {
     routing {
-        all(service)
-        get(service)
-        create(service)
-        delete(service)
+        route("/products") {
+            all(service)
+            get(service)
+            create(service)
+            delete(service)
+        }
     }
 }
 
 private fun Route.all(service: ProductService) {
-    get("/products") {
+    get {
         service.getAll()
             .map { it.map { product -> product.toDto() } }
             .handle({
