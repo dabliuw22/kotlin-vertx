@@ -1,17 +1,17 @@
 package com.leysoft.products.domain.persistence
 
-import arrow.Kind
-import arrow.core.Option
+import arrow.core.Either
+import com.leysoft.core.error.ProductException
 import com.leysoft.products.domain.Product
 import com.leysoft.products.domain.ProductId
 
-interface ProductRepository<F> {
+interface ProductRepository {
 
-    fun findBy(id: ProductId): Kind<F, Option<Product>>
+    suspend fun findBy(id: ProductId): Either<ProductException, Product>
 
-    fun findAll(): Kind<F, List<Product>>
+    suspend fun findAll(): Either<ProductException, List<Product>>
 
-    fun save(product: Product): Kind<F, Unit>
+    suspend fun save(product: Product): Either<ProductException, Unit>
 
-    fun deleteBy(id: ProductId): Kind<F, Boolean>
+    suspend fun deleteBy(id: ProductId): Either<ProductException, Unit>
 }
