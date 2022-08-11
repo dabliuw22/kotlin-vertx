@@ -27,7 +27,7 @@ suspend inline fun <reified A : Any> ApplicationCall.respondJson(
     this.respond(status, message)
 }
 
-inline fun ApplicationCall.getParam(key: String): Option<String> =
+fun ApplicationCall.getParam(key: String): Option<String> =
     Option.fromNullable(parameters[key])
 
 data class RequiredParameterException(override val message: String) :
