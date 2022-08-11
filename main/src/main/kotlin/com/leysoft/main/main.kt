@@ -4,8 +4,8 @@ package com.leysoft.main
 
 import com.leysoft.infrastructure.http.Server.run
 import com.leysoft.infrastructure.http.ServerResource
-import com.leysoft.infrastructure.jdbc.Sql
-import com.leysoft.infrastructure.jdbc.SqlResource
+import com.leysoft.infrastructure.jdbc.Jdbc
+import com.leysoft.infrastructure.jdbc.JdbcResource
 import com.leysoft.products.adapter.`in`.api.products
 import com.leysoft.products.adapter.out.persistence.sql.SqlProductRepository
 import com.leysoft.products.application.ProductService
@@ -17,11 +17,11 @@ fun main(): Unit =
     runBlocking(Dispatchers.Default) {
         Config.env().load()
             .flatMap { config ->
-                with(config.sql) {
-                    SqlResource.make()
-                        .flatMap { sql ->
+                with(config.jdbc) {
+                    JdbcResource.make()
+                        .flatMap { jdbc ->
                             with(config.server) {
-                                with(sql) {
+                                with(jdbc) {
                                     ServerResource.make {
                                         productModule()
                                     }
@@ -32,7 +32,7 @@ fun main(): Unit =
             }.use { it.run() }
     }
 
-context(Sql)
+context(Jdbc)
 private fun Application.productModule() {
     val repository = SqlProductRepository.make()
     val service = ProductService.Instance.make(repository)

@@ -7,8 +7,8 @@ import com.leysoft.core.error.CustomProductException
 import com.leysoft.core.error.DeleteProductException
 import com.leysoft.core.error.NotFoundProductException
 import com.leysoft.core.error.ProductException
-import com.leysoft.infrastructure.jdbc.Sql
-import com.leysoft.infrastructure.jdbc.Sql.Instance.SqlException.Data
+import com.leysoft.infrastructure.jdbc.Jdbc
+import com.leysoft.infrastructure.jdbc.Jdbc.Instance.SqlException.Data
 import com.leysoft.infrastructure.logger.Logger
 import com.leysoft.products.domain.Product
 import com.leysoft.products.domain.ProductCreatedAt
@@ -20,7 +20,7 @@ import com.vladsch.kotlin.jdbc.Row
 import com.vladsch.kotlin.jdbc.SqlQuery
 import com.vladsch.kotlin.jdbc.sqlQuery
 
-context(Sql)
+context(Jdbc)
 class SqlProductRepository private constructor() :
     ProductRepository {
 
@@ -89,7 +89,7 @@ class SqlProductRepository private constructor() :
             )
         }
 
-        private val decoder: Sql.Instance.Decoder<Product> = object : Sql.Instance.Decoder<Product> {
+        private val decoder: Jdbc.Instance.Decoder<Product> = object : Jdbc.Instance.Decoder<Product> {
             override fun decode(row: Row): Product =
                 Product(
                     id = ProductId(row.string("id")),
@@ -99,7 +99,7 @@ class SqlProductRepository private constructor() :
                 )
         }
 
-        context(Sql)
+        context(Jdbc)
         fun make(): ProductRepository =
             SqlProductRepository()
     }

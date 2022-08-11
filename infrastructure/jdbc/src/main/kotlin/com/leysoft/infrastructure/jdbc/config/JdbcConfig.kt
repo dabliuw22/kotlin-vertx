@@ -3,7 +3,7 @@ package com.leysoft.infrastructure.jdbc.config
 import arrow.fx.coroutines.Resource
 import com.leysoft.core.domain.FromEnv
 
-data class SqlConfig(
+data class JdbcConfig(
     val url: String,
     val user: String,
     val password: String,
@@ -11,10 +11,10 @@ data class SqlConfig(
     val poolMaxSize: Int
 ) {
     companion object {
-        fun env(): FromEnv<SqlConfig> = object : FromEnv<SqlConfig> {
-            override fun load(): Resource<SqlConfig> =
+        fun env(): FromEnv<JdbcConfig> = object : FromEnv<JdbcConfig> {
+            override fun load(): Resource<JdbcConfig> =
                 Resource.just(
-                    SqlConfig(
+                    JdbcConfig(
                         System.getenv("DB_URL")
                             ?: "jdbc:postgresql://localhost:5432/vertx_db",
                         System.getenv("DB_USER") ?: "vertx",

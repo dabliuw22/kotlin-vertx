@@ -4,7 +4,7 @@ import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.right
 import com.leysoft.core.error.InfrastructureException
-import com.leysoft.infrastructure.jdbc.Sql.Instance.SqlException.Data
+import com.leysoft.infrastructure.jdbc.Jdbc.Instance.SqlException.Data
 import com.vladsch.kotlin.jdbc.Row
 import com.vladsch.kotlin.jdbc.Session
 import com.vladsch.kotlin.jdbc.SqlQuery
@@ -12,7 +12,7 @@ import com.vladsch.kotlin.jdbc.Transaction
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-interface Sql {
+interface Jdbc {
     suspend fun <A> first(query: SqlQuery, decoder: Decoder<A>): Either<SqlException, A>
     suspend fun <A> list(query: SqlQuery, decoder: Decoder<A>): Either<SqlException, List<A>>
     suspend fun command(command: SqlQuery): Either<SqlException, Int>
@@ -46,8 +46,8 @@ interface Sql {
         }
 
         context(Session)
-        fun make(): Sql =
-            object : Sql {
+        fun make(): Jdbc =
+            object : Jdbc {
                 override suspend fun <A> first(
                     query: SqlQuery,
                     decoder: Decoder<A>
