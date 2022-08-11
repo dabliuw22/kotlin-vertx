@@ -65,7 +65,7 @@ class SqlProductRepository private constructor() :
             )
         }
 
-        private val getAll : SqlQuery =
+        private val getAll: SqlQuery =
             sqlQuery("SELECT * FROM products.products")
 
         private val insert: (Product) -> SqlQuery = {
