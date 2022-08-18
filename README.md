@@ -1,6 +1,6 @@
 # Kotlin Vert.x
 
-In this project an API rest with Vert.x, Arrow, JDBC was created. Using **Type-Classes** and **Tagless Final**.
+In this project an API rest with Ktot, Arrow, JDBC was created.
 
 ## Requirements
 
