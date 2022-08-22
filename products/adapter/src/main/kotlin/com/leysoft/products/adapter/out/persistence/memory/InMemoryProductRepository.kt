@@ -1,52 +1,66 @@
 package com.leysoft.products.adapter.out.persistence.memory
 
-import arrow.Kind
-import arrow.core.None
-import arrow.core.Option
-import arrow.fx.Ref
-import arrow.fx.typeclasses.Effect
+import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.right
+import arrow.fx.coroutines.Atomic
+import com.leysoft.core.error.CreateProductException
+import com.leysoft.core.error.DeleteProductException
+import com.leysoft.core.error.NotFoundProductException
+import com.leysoft.core.error.ProductException
 import com.leysoft.products.domain.Product
 import com.leysoft.products.domain.ProductId
 import com.leysoft.products.domain.persistence.ProductRepository
-import java.lang.RuntimeException
 
-typealias Store<F> = Ref<F, Map<String, Product>>
+typealias Storage = Atomic<Map<String, Product>>
 
-class InMemoryProductRepository<F> private constructor(
-    private val Q: Effect<F>,
-    private val store: Store<F>
-) : ProductRepository<F>, Effect<F> by Q {
+class InMemoryProductRepository private constructor(private val storage: Storage) :
+    ProductRepository {
 
-    override fun findBy(id: ProductId): Kind<F, Option<Product>> = store.get()
-        .map { Option.fromNullable(it[id.value]) }
+    override suspend fun findBy(id: ProductId): Either<ProductException, Product> =
+        Either.catch({
+            NotFoundProductException("Not found product: $id")
+        }) { storage.get() }
+            .map { it[id.value] }
+            .flatMap { it?.right() ?: Either.Left(NotFoundProductException("Not found product: $id")) }
 
-    override fun findAll(): Kind<F, List<Product>> = store.get()
-        .map { it.values.toList() }
-
-    override fun save(product: Product): Kind<F, Unit> = store.get()
-        .map { Option.fromNullable(it[product.id.value]) }
-        .flatMap { result ->
-            when (result) {
-                is None -> store.update { it.plus(Pair(product.id.value, product)) }
-                else -> raiseError(RuntimeException("Not save Product: ${product.id}"))
-            }
+    override suspend fun findAll(): Either<ProductException, List<Product>> =
+        Either.catch({ NotFoundProductException("Not found products") }) {
+            storage.get().values.toList()
         }
 
-    override fun deleteBy(id: ProductId): Kind<F, Boolean> = store.get()
-        .map { Option.fromNullable(it[id.value]) }
-        .flatMap {
-            it.fold(
-                { raiseError<Boolean>(RuntimeException("Not found Product: $id")) },
-                {
-                    store.update { s -> s.minus(id.value) }
-                        .map { true }.handleError { false }
+    override suspend fun save(product: Product): Either<ProductException, Unit> {
+        return when (val result = findBy(product.id)) {
+            is Either.Left ->
+                when (val error = result.value) {
+                    is NotFoundProductException -> Either.catch({
+                        CreateProductException("Not save Product: ${product.id}")
+                    }) {
+                        storage.update {
+                            it.plus(Pair(product.id.value, product))
+                        }
+                    }
+                    else -> Either.Left(error)
                 }
+            else -> Either.Left(
+                CreateProductException("Not save Product: ${product.id}")
             )
         }
+    }
+
+    override suspend fun deleteBy(id: ProductId): Either<ProductException, Unit> {
+        return when (val result = findBy(id)) {
+            is Either.Right -> {
+                return Either.catch({ DeleteProductException("Not delete Product: $id") }) {
+                    storage.update { it.minus(id.value) }
+                }
+            }
+            is Either.Left -> Either.Left(result.value)
+        }
+    }
 
     companion object {
-
-        fun <F> make(Q: Effect<F>, ref: Ref<F, Map<String, Product>>): ProductRepository<F> =
-            InMemoryProductRepository(Q, ref)
+        fun make(storage: Storage): ProductRepository =
+            InMemoryProductRepository(storage)
     }
 }

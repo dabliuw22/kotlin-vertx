@@ -1,5 +1,5 @@
 package com.leysoft.products.application
-
+/*
 import arrow.fx.IO
 import arrow.fx.Ref
 import arrow.fx.extensions.io.effect.effect
@@ -90,3 +90,4 @@ object DefaultProductServiceSpec : Spek({
         }
     }
 })
+*/

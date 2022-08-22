@@ -1,13 +1,7 @@
 package com.leysoft.infrastructure.jdbc.config
 
-import arrow.Kind
-import arrow.fx.Resource
-import arrow.fx.typeclasses.Bracket
-import com.vladsch.kotlin.jdbc.Session
-import com.vladsch.kotlin.jdbc.session
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
-import javax.sql.DataSource
+import arrow.fx.coroutines.Resource
+import com.leysoft.core.domain.FromEnv
 
 data class JdbcConfig(
     val url: String,
@@ -16,35 +10,19 @@ data class JdbcConfig(
     val driver: String,
     val poolMaxSize: Int
 ) {
-
-    private val dataSource = dataSource(this)
-
-    fun <F> resource(B: Bracket<F, Throwable>): Resource<F, Throwable, Session> =
-        Resource(
-            acquire = acquire(B),
-            release = release(B),
-            BR = B
-        )
-
-    private fun <F> acquire(B: Bracket<F, Throwable>): () -> Kind<F, Session> =
-        { B.just(session(dataSource)) }
-
-    private fun <F> release(B: Bracket<F, Throwable>): (Session) -> Kind<F, Unit> =
-        { B.just(it.close()) }
-
     companion object {
-
-        private fun hikari(jdbcConfig: JdbcConfig): HikariConfig {
-            val config = HikariConfig()
-            config.jdbcUrl = jdbcConfig.url
-            config.username = jdbcConfig.user
-            config.password = jdbcConfig.password
-            config.driverClassName = jdbcConfig.driver
-            config.maximumPoolSize = jdbcConfig.poolMaxSize
-            return config
+        fun env(): FromEnv<JdbcConfig> = object : FromEnv<JdbcConfig> {
+            override fun load(): Resource<JdbcConfig> =
+                Resource.just(
+                    JdbcConfig(
+                        System.getenv("DB_URL")
+                            ?: "jdbc:postgresql://localhost:5432/vertx_db",
+                        System.getenv("DB_USER") ?: "vertx",
+                        System.getenv("DB_PASSWORD") ?: "vertx",
+                        System.getenv("DB_DRIVER") ?: "org.postgresql.Driver",
+                        System.getenv("DB_POOL_MAX_SIZE")?.toInt() ?: 10
+                    )
+                )
         }
-
-        private fun dataSource(jdbcConfig: JdbcConfig): DataSource =
-            HikariDataSource(hikari(jdbcConfig))
     }
 }

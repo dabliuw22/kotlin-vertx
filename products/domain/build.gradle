@@ -1,11 +1,8 @@
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
     implementation "io.arrow-kt:arrow-core"
-    implementation "io.arrow-kt:arrow-syntax"
-    implementation "io.arrow-kt:arrow-mtl"
     implementation "io.arrow-kt:arrow-optics"
-    implementation "io.arrow-kt:arrow-optics-mtl"
-    //kapt "io.arrow-kt:arrow-meta"
 
     implementation project (":core:core-domain")
+    implementation project (":core:core-error")
 }

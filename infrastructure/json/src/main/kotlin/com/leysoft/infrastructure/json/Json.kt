@@ -7,12 +7,10 @@ import com.fasterxml.jackson.databind.SerializationFeature
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.fasterxml.jackson.module.kotlin.KotlinModule
-import java.lang.Exception
-import kotlin.reflect.KClass
 
 object Json {
 
-    private val mapper = ObjectMapper()
+    val mapper: ObjectMapper = ObjectMapper()
         .registerModule(KotlinModule())
         .registerModule(Jdk8Module())
         .registerModule(JavaTimeModule())
@@ -20,20 +18,10 @@ object Json {
         .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false)
 
     fun <A : Any> write(data: A): Either<JsonException, String> =
-        try {
-            val json = mapper.writeValueAsString(data)
-            Either.right(json)
-        } catch (e: Exception) {
-            Either.left(JsonException(e))
-        }
+        Either.catch({ JsonException(it) }) { mapper.writeValueAsString(data) }
 
-    fun <A : Any> read(data: String, clazz: KClass<A>): Either<JsonException, A> =
-        try {
-            val result = mapper.readValue(data, clazz.java)
-            Either.right(result)
-        } catch (e: Exception) {
-            Either.left(JsonException(e))
-        }
+    inline fun <reified A : Any> read(data: String): Either<JsonException, A> =
+        Either.catch({ JsonException(it) }) { mapper.readValue(data, A::class.java) }
 
     data class JsonException(val throwable: Throwable) : RuntimeException(throwable)
 }

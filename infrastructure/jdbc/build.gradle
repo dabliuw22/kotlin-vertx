@@ -1,11 +1,13 @@
 dependencies {
+    implementation project (":core:core-domain")
+    implementation project (":core:core-error")
+
     implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core"
     implementation "com.vladsch.kotlin-jdbc:kotlin-jdbc"
     implementation "com.zaxxer:HikariCP"
     implementation "org.postgresql:postgresql"
     implementation "io.arrow-kt:arrow-core"
-    implementation "io.arrow-kt:arrow-syntax"
-    implementation "io.arrow-kt:arrow-fx"
+    implementation "io.arrow-kt:arrow-fx-coroutines"
     //kapt "io.arrow-kt:arrow-meta"
 }

@@ -1,12 +1,7 @@
 package com.leysoft.products.adapter.out.persistence.memory
-
+/*
 import arrow.core.None
 import arrow.core.Some
-import arrow.fx.IO
-import arrow.fx.Ref
-import arrow.fx.extensions.io.effect.effect
-import arrow.fx.extensions.io.monadDefer.monadDefer
-import arrow.fx.fix
 import com.leysoft.products.domain.Product
 import com.leysoft.products.domain.ProductId
 import com.leysoft.products.domain.ProductName
@@ -52,3 +47,4 @@ object InMemoryProductRepositorySpec : Spek({
         }
     }
 })
+*/

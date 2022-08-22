@@ -1,11 +1,15 @@
 package com.leysoft.products.adapter.out.persistence.sql
 
-import arrow.Kind
-import arrow.core.Option
-import arrow.fx.typeclasses.Effect
+import arrow.core.Either
+import arrow.core.filterOrOther
+import com.leysoft.core.error.CreateProductException
+import com.leysoft.core.error.CustomProductException
+import com.leysoft.core.error.DeleteProductException
+import com.leysoft.core.error.NotFoundProductException
+import com.leysoft.core.error.ProductException
 import com.leysoft.infrastructure.jdbc.Jdbc
+import com.leysoft.infrastructure.jdbc.Jdbc.Instance.SqlException.Data
 import com.leysoft.infrastructure.logger.Logger
-import com.leysoft.infrastructure.logger.LoggerFactory
 import com.leysoft.products.domain.Product
 import com.leysoft.products.domain.ProductCreatedAt
 import com.leysoft.products.domain.ProductId
@@ -13,49 +17,79 @@ import com.leysoft.products.domain.ProductName
 import com.leysoft.products.domain.ProductStock
 import com.leysoft.products.domain.persistence.ProductRepository
 import com.vladsch.kotlin.jdbc.Row
+import com.vladsch.kotlin.jdbc.SqlQuery
 import com.vladsch.kotlin.jdbc.sqlQuery
 
-class SqlProductRepository<F> private constructor(
-    private val Q: Effect<F>
-) : ProductRepository<F>, Effect<F> by Q {
+context(Jdbc)
+class SqlProductRepository private constructor() :
+    ProductRepository {
 
-    private val log: Logger<F> = LoggerFactory.getLogger<SqlProductRepository<F>, F>(Q)
+    private val log: Logger = Logger.get<SqlProductRepository>()
 
-    override fun findBy(id: ProductId): Kind<F, Option<Product>> =
-        log.info("Init findBy")
-            .flatMap { Jdbc.option(Q, decoder, getById(id)) }
-            .guarantee(log.info("End findBy"))
-            .onError { error -> log.error("Error findBy: $error") }
+    override suspend fun findBy(id: ProductId): Either<ProductException, Product> =
+        log.info("Init findBy").let { _ ->
+            first(getById(id), decoder)
+                .mapLeft {
+                    when (val result = it) {
+                        is Data.SqlNotFound ->
+                            NotFoundProductException(result.message)
+                        else -> CustomProductException(result.message)
+                    }
+                }
+        }.also { log.info("End findBy") }
 
-    override fun findAll(): Kind<F, List<Product>> =
-        Jdbc.list(Q, decoder, getAll())
+    override suspend fun findAll(): Either<ProductException, List<Product>> =
+        list(getAll, decoder)
+            .mapLeft { CustomProductException(it.message) }
 
-    override fun save(product: Product): Kind<F, Unit> =
-        Jdbc.command(Q, insert(product)).void()
+    override suspend fun save(product: Product): Either<ProductException, Unit> =
+        command(insert(product))
+            .mapLeft { CreateProductException(it.message) }
+            .filterOrOther({ it > 0 }) {
+                CreateProductException("Not save Product: ${product.id}")
+            }.map { }
 
-    override fun deleteBy(id: ProductId): Kind<F, Boolean> =
-        Jdbc.command(Q, delById(id)).map { it > 0 }
+    override suspend fun deleteBy(id: ProductId): Either<ProductException, Unit> =
+        command(delById(id))
+            .mapLeft { DeleteProductException(it.message) }
+            .filterOrOther({ it > 0 }) {
+                DeleteProductException("Not delete Product: $id")
+            }.map { }
 
     companion object {
 
-        private fun getById(id: ProductId) = sqlQuery(
-            "SELECT * FROM products.products WHERE id = ?",
-            id.value
-        )
+        private val getById: (ProductId) -> SqlQuery = {
+            sqlQuery(
+                "SELECT * FROM products.products WHERE id = ?",
+                it.value
+            )
+        }
 
-        private fun getAll() = sqlQuery("SELECT * FROM products.products")
+        private val getAll: SqlQuery =
+            sqlQuery("SELECT * FROM products.products")
 
-        private fun insert(product: Product) = sqlQuery(
-            "INSERT INTO products.products(id, name, stock, created_at)  VALUES (?, ?, ?, ?)",
-            listOf(product.id.value, product.name.value, product.stock.value, product.createdAt.value)
-        )
+        private val insert: (Product) -> SqlQuery = {
+            sqlQuery(
+                """INSERT INTO products.products(id, name, stock, created_at) 
+                |VALUES (?, ?, ?, ?)
+                """.trimMargin(),
+                listOf(
+                    it.id.value,
+                    it.name.value,
+                    it.stock.value,
+                    it.createdAt.value
+                )
+            )
+        }
 
-        private fun delById(id: ProductId) = sqlQuery(
-            "DELETE FROM products.products WHERE id = ?",
-            id.value
-        )
+        private val delById: (ProductId) -> SqlQuery = {
+            sqlQuery(
+                "DELETE FROM products.products WHERE id = ?",
+                it.value
+            )
+        }
 
-        private val decoder: Jdbc.Decoder<Product> = object : Jdbc.Decoder<Product> {
+        private val decoder: Jdbc.Instance.Decoder<Product> = object : Jdbc.Instance.Decoder<Product> {
             override fun decode(row: Row): Product =
                 Product(
                     id = ProductId(row.string("id")),
@@ -65,7 +99,8 @@ class SqlProductRepository<F> private constructor(
                 )
         }
 
-        fun <F> make(Q: Effect<F>): ProductRepository<F> =
-            SqlProductRepository(Q)
+        context(Jdbc)
+        fun make(): ProductRepository =
+            SqlProductRepository()
     }
 }

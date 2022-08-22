@@ -1,70 +1,86 @@
 package com.leysoft.infrastructure.jdbc
 
-import arrow.Kind
-import arrow.core.Option
-import arrow.core.Try
-import arrow.fx.typeclasses.Effect
-import com.leysoft.infrastructure.jdbc.config.JdbcConfig
+import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.right
+import com.leysoft.core.error.InfrastructureException
+import com.leysoft.infrastructure.jdbc.Jdbc.Instance.SqlException.Data
 import com.vladsch.kotlin.jdbc.Row
+import com.vladsch.kotlin.jdbc.Session
 import com.vladsch.kotlin.jdbc.SqlQuery
 import com.vladsch.kotlin.jdbc.Transaction
 import kotlinx.coroutines.Dispatchers
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.withContext
 
-object Jdbc {
+interface Jdbc {
+    suspend fun <A> first(query: SqlQuery, decoder: Decoder<A>): Either<SqlException, A>
+    suspend fun <A> list(query: SqlQuery, decoder: Decoder<A>): Either<SqlException, List<A>>
+    suspend fun command(command: SqlQuery): Either<SqlException, Int>
+    suspend fun <A> transaction(program: (Transaction) -> A): Either<SqlException, A>
 
-    private val io: CoroutineContext = Dispatchers.IO
+    companion object Instance {
+        abstract class SqlException(
+            override val message: String
+        ) : InfrastructureException(message) {
+            companion object Data {
+                data class QueryError(
+                    override val message: String
+                ) : SqlException(message)
 
-    interface Decoder<A> {
-        fun decode(row: Row): A
+                data class SqlNotFound(
+                    override val message: String
+                ) : SqlException(message)
+
+                data class CommandError(
+                    override val message: String
+                ) : SqlException(message)
+
+                data class TransactionError(
+                    override val message: String
+                ) : SqlException(message)
+            }
+        }
+
+        interface Decoder<A> {
+            fun decode(row: Row): A
+        }
+
+        context(Session)
+        fun make(): Jdbc =
+            object : Jdbc {
+                override suspend fun <A> first(
+                    query: SqlQuery,
+                    decoder: Decoder<A>
+                ): Either<SqlException, A> =
+                    withContext(Dispatchers.IO) {
+                        Either.catch(
+                            {
+                                Data.QueryError(it.message ?: "Error trying to execute first")
+                            }
+                        ) {
+                            first(query) { decoder.decode(it) }
+                        }.flatMap { it?.right() ?: Either.Left(Data.SqlNotFound("Not Found")) }
+                    }
+
+                override suspend fun <A> list(query: SqlQuery, decoder: Decoder<A>): Either<SqlException, List<A>> =
+                    withContext(Dispatchers.IO) {
+                        Either.catch({
+                            Data.QueryError(it.message ?: "Error trying to execute list")
+                        }) { this@Session.list(query) { decoder.decode(it) } }
+                    }
+
+                override suspend fun command(command: SqlQuery): Either<SqlException, Int> =
+                    withContext(Dispatchers.IO) {
+                        transaction { it.update(command) }
+                            .mapLeft { Data.CommandError(it.message) }
+                    }
+
+                override suspend fun <A> transaction(program: (Transaction) -> A): Either<SqlException, A> =
+                    withContext(Dispatchers.IO) {
+                        Either.catch({
+                            Data.TransactionError(it.message ?: "Error trying to execute transaction")
+                        }) { this@Session.transaction { program(it) } }
+                    }
+            }
     }
-
-    fun <F, A> option(
-        E: Effect<F>,
-        decoder: Decoder<A>,
-        query: SqlQuery
-    ): Kind<F, Option<A>> =
-        jdbcConfig.resource(E).use { session ->
-            E.later(io) {
-                session.first(query) { decoder.decode(it) }
-                    .let { Option.fromNullable(it) }
-            }
-        }
-
-    fun <F, A> list(
-        E: Effect<F>,
-        decoder: Decoder<A>,
-        query: SqlQuery
-    ): Kind<F, List<A>> =
-        jdbcConfig.resource(E).use { session ->
-            E.run {
-                laterOrRaise(io) {
-                    Try {
-                        session.list(query) { decoder.decode(it) }
-                    }.toEither()
-                }
-            }
-        }
-
-    fun <F> command(
-        E: Effect<F>,
-        command: SqlQuery
-    ): Kind<F, Int> =
-        transaction(E) { transaction -> transaction.update(command) }
-
-    fun <F, A> transaction(
-        E: Effect<F>,
-        program: (Transaction) -> A
-    ): Kind<F, A> =
-        jdbcConfig.resource(E).use { session ->
-            E.later(io) { session.transaction { program(it) } }
-        }
-
-    private val jdbcConfig = JdbcConfig(
-        System.getenv("DB_URL") ?: "jdbc:postgresql://localhost:5432/vertx_db",
-        System.getenv("DB_USER") ?: "vertx",
-        System.getenv("DB_PASSWORD") ?: "vertx",
-        System.getenv("DB_DRIVER") ?: "org.postgresql.Driver",
-        System.getenv("DB_POOL_MAX_SIZE")?.toInt() ?: 10
-    )
 }
