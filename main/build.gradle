@@ -11,6 +11,7 @@ dependencies {
     implementation "io.arrow-kt:arrow-core"
     implementation "io.arrow-kt:arrow-optics"
     implementation "io.arrow-kt:arrow-fx-coroutines"
+    implementation "org.codehaus.groovy:groovy-all"
 
     implementation project (":core:core-domain")
     implementation project (":core:core-error")
