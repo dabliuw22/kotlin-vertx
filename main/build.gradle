@@ -1,6 +1,7 @@
 apply plugin: 'application'
+apply plugin: 'groovy'
 
-mainClassName = "com.leysoft.main.MainIO"
+mainClassName = "com.leysoft.main.App"
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
