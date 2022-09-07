@@ -1,4 +1,5 @@
 apply plugin: 'application'
+apply plugin: 'groovy'
 
 mainClassName = "com.leysoft.main.App"
 

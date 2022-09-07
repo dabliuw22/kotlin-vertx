@@ -63,7 +63,6 @@ subprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     //apply plugin: 'kotlin-kapt'
 
-    def vertx_version = "4.3.2"
     def ktor_version= "2.0.3"
     def arrow_version = "1.0.1"
     def jackson_version = "2.11.1"
@@ -72,7 +71,7 @@ subprojects {
     def postgres_version = "42.2.12"
     def hikari_version = "3.4.5"
     def slf4j_version = "1.7.36"
-    def logback_version = "1.2.9"
+    def logback_version = "1.4.0"
     def logback_encoder_version = "7.0.1"
     def spek_version = "2.0.9"
     def groovy_version = "3.0.9"
