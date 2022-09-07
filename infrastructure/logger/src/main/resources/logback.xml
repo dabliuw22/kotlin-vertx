@@ -1,26 +1,35 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration>
+
 <configuration>
-    <property scope="context" name="service_name" value="kotlin-vertx"/>
-    <appender name="stdOut" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>
-                %highlight([%level]) [%date{HH:mm:ss.SSS}] [${service_name}] %magenta([%thread]) [%logger] %message %n%throwable
-            </pattern>
+    <import class="net.logstash.logback.encoder.LogstashEncoder"/>
+    <import class="ch.qos.logback.classic.encoder.PatternLayoutEncoder"/>
+    <import class="ch.qos.logback.core.rolling.RollingFileAppender"/>
+    <import class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"/>
+    <import class="ch.qos.logback.core.ConsoleAppender"/>
+    <property name="service_name" value="kotlin-vertx" scope="context"/>
+
+    <appender name="stdOut" class="ConsoleAppender">
+        <encoder class="PatternLayoutEncoder">
+            <pattern>%highlight([%level]) [%date{HH:mm:ss.SSS}] [${service_name}] %magenta([%thread]) [%logger] %message %n%throwable</pattern>
         </encoder>
     </appender>
-    <appender name="jsonFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+    <appender name="jsonFile" class="RollingFileAppender">
         <file>logs/logs.json</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+        <rollingPolicy class="TimeBasedRollingPolicy">
             <fileNamePattern>logs/logs-%d{yyyy-MM-dd}.gz</fileNamePattern>
             <maxHistory>10</maxHistory>
         </rollingPolicy>
-        <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+        <encoder class="LogstashEncoder"/>
     </appender>
+
     <logger name="ch.qos.logback" level="WARN"/>
     <logger name="com.zaxxer.hikari" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
     <logger name="io.vertx" level="INFO"/>
     <logger name="reactor.util" level="INFO"/>
+
     <root level="all">
         <appender-ref ref="stdOut"/>
         <appender-ref ref="jsonFile"/>
