@@ -14,7 +14,6 @@
             <pattern>%highlight([%level]) [%date{HH:mm:ss.SSS}] [${service_name}] %magenta([%thread]) [%logger] %message %n%throwable</pattern>
         </encoder>
     </appender>
-
     <appender name="jsonFile" class="RollingFileAppender">
         <file>logs/logs.json</file>
         <rollingPolicy class="TimeBasedRollingPolicy">
