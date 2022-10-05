@@ -4,6 +4,11 @@ import arrow.optics.optics
 import java.time.OffsetDateTime
 import java.util.UUID
 
+sealed interface ProductStatus {
+    data object Deprecated
+    data object Existing
+}
+
 @optics
 data class ProductId(val value: String = UUID.randomUUID().toString()) {
     companion object
