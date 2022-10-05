@@ -17,17 +17,17 @@ allprojects {
         gradlePluginPortal()
         mavenCentral()
         maven { url "https://plugins.gradle.org/m2/" }
-        maven { url "https://dl.bintray.com/arrow-kt/arrow-kt/" }
+        //maven { url "https://dl.bintray.com/arrow-kt/arrow-kt/" }
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     compileKotlin {
         kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_11
+            jvmTarget = JavaVersion.VERSION_17
             freeCompilerArgs += "-version"
             freeCompilerArgs += "-script"
         }
@@ -35,15 +35,20 @@ allprojects {
 
     tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         kotlinOptions {
+            languageVersion = "1.8"
+            verbose = true
+            jvmTarget = JavaVersion.VERSION_17
             freeCompilerArgs +=  [
                     "-Xcontext-receivers",
-                    "-Xenable-builder-inference"
+                    "-Xenable-builder-inference",
+                    "-version",
+                    "-script"
             ]
         }
     }
 
     compileTestKotlin {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_11
+        kotlinOptions.jvmTarget = JavaVersion.VERSION_17
     }
 
     test {
@@ -76,7 +81,7 @@ subprojects {
     def groovy_version = "3.0.9"
 
     buildscript {
-        ext.kotlin_version = '1.7.10'
+        ext.kotlin_version = '1.7.20'
         repositories {
             mavenCentral()
         }
