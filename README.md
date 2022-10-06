@@ -4,7 +4,7 @@ In this project an API rest with Ktot, Arrow, JDBC was created.
 
 ## Requirements
 
-* JDK >= 1.8
+* JDK >= 17
 * Kotlin
 * Docker
 * Docker Compose
