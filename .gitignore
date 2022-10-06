@@ -5,6 +5,7 @@
 /build
 **/build/
 /logs
+**/logs
 *.iml
 *.ipr
 *.iws
