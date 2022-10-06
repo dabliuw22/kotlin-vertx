@@ -1,8 +1,8 @@
 package com.leysoft.infrastructure.jdbc
 
 import arrow.fx.coroutines.Resource
+import arrow.fx.coroutines.continuations.resource
 import arrow.fx.coroutines.release
-import arrow.fx.coroutines.resource
 import com.leysoft.infrastructure.jdbc.config.JdbcConfig
 import com.vladsch.kotlin.jdbc.Session
 import com.zaxxer.hikari.HikariConfig
@@ -13,9 +13,13 @@ object JdbcResource {
 
     context(JdbcConfig)
     fun make(): Resource<Jdbc> =
-        Resource.just(this@JdbcConfig)
-            .flatMap { it.session() }
-            .map { with(it) { Jdbc.make() } }
+        resource {
+            val jdbc = this@JdbcConfig
+            val session = jdbc.session().bind()
+            session
+        }.map {
+            with(it) { Jdbc.make() }
+        }
 
     private fun JdbcConfig.hikari(): Resource<HikariConfig> {
         val config = HikariConfig()
