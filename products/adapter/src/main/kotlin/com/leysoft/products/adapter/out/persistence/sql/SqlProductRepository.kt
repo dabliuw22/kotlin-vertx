@@ -24,8 +24,6 @@ context(Jdbc)
 class SqlProductRepository private constructor() :
     ProductRepository {
 
-    private val log: Logger = Logger.get<SqlProductRepository>()
-
     override suspend fun findBy(id: ProductId): Either<ProductException, Product> =
         log.info("Init findBy").let { _ ->
             first(getById(id), decoder)
@@ -57,6 +55,7 @@ class SqlProductRepository private constructor() :
             }.map { }
 
     companion object {
+        private val log: Logger by lazy { Logger.get<SqlProductRepository>() }
 
         private val getById: (ProductId) -> SqlQuery = {
             sqlQuery(
