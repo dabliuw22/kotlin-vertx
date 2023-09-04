@@ -7,6 +7,7 @@ import com.leysoft.infrastructure.jdbc.config.JdbcConfig
 import com.vladsch.kotlin.jdbc.Session
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import kotlinx.coroutines.Dispatchers
 import com.vladsch.kotlin.jdbc.session as jdbc
 
 object JdbcResource {
@@ -16,9 +17,9 @@ object JdbcResource {
         resource {
             val jdbc = this@JdbcConfig
             val session = jdbc.session().bind()
-            session
-        }.map {
-            with(it) { Jdbc.make() }
+            with(session) {
+                with(Dispatchers.IO) { Jdbc.make() }
+            }
         }
 
     private fun JdbcConfig.hikari(): Resource<HikariConfig> {

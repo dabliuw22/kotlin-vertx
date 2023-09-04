@@ -1,7 +1,6 @@
 package com.leysoft.products.adapter.out.persistence.sql
 
-import arrow.core.Either
-import arrow.core.filterOrOther
+import arrow.core.*
 import com.leysoft.core.error.CreateProductException
 import com.leysoft.core.error.CustomProductException
 import com.leysoft.core.error.DeleteProductException
@@ -43,16 +42,18 @@ class SqlProductRepository private constructor() :
     override suspend fun save(product: Product): Either<ProductException, Unit> =
         command(insert(product))
             .mapLeft { CreateProductException(it.message) }
-            .filterOrOther({ it > 0 }) {
-                CreateProductException("Not save Product: ${product.id}")
-            }.map { }
+            .flatMap {
+                if (it > 0) Unit.right()
+                else CreateProductException("Not save Product: ${product.id}").left()
+            }
 
     override suspend fun deleteBy(id: ProductId): Either<ProductException, Unit> =
         command(delById(id))
             .mapLeft { DeleteProductException(it.message) }
-            .filterOrOther({ it > 0 }) {
-                DeleteProductException("Not delete Product: $id")
-            }.map { }
+            .flatMap {
+                if (it > 0) Unit.right()
+                else DeleteProductException("Not delete Product: $id").left()
+            }
 
     companion object {
         private val log: Logger by lazy { Logger.get<SqlProductRepository>() }

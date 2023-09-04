@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
     id 'org.jetbrains.kotlin.jvm'
     id 'org.jetbrains.kotlin.kapt'
@@ -21,23 +24,28 @@ allprojects {
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_20
+        targetCompatibility = JavaVersion.VERSION_20
+    }
+
+    kotlin {
+        compilerOptions {
+            apiVersion = KotlinVersion.KOTLIN_1_9
+        }
     }
 
     compileKotlin {
         kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_17
+            jvmTarget = JavaVersion.VERSION_20
             freeCompilerArgs += "-version"
             freeCompilerArgs += "-script"
         }
     }
 
-    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+    tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
-            languageVersion = "1.8"
             verbose = true
-            jvmTarget = JavaVersion.VERSION_17
+            jvmTarget = JavaVersion.VERSION_20
             freeCompilerArgs +=  [
                     "-Xcontext-receivers",
                     "-Xenable-builder-inference",
@@ -48,7 +56,7 @@ allprojects {
     }
 
     compileTestKotlin {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_17
+        kotlinOptions.jvmTarget = JavaVersion.VERSION_20
     }
 
     test {
@@ -67,11 +75,11 @@ subprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     //apply plugin: 'kotlin-kapt'
 
-    def ktor_version= "2.0.3"
-    def arrow_version = "1.1.3"
+    def ktor_version= "2.3.4"
+    def arrow_version = "1.2.0"
     def jackson_version = "2.11.1"
     def kotlin_jdbc_version = "0.5.0"
-    def kotlin_coroutines_version = "1.6.4"
+    def kotlin_coroutines_version = "1.7.3"
     def postgres_version = "42.2.12"
     def hikari_version = "3.4.5"
     def slf4j_version = "1.7.36"
@@ -81,7 +89,7 @@ subprojects {
     def groovy_version = "3.0.9"
 
     buildscript {
-        ext.kotlin_version = '1.7.20'
+        ext.kotlin_version = '1.9.10'
         repositories {
             mavenCentral()
         }

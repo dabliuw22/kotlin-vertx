@@ -2,6 +2,7 @@
 
 package com.leysoft.main
 
+import arrow.fx.coroutines.resource
 import com.leysoft.infrastructure.http.Server.run
 import com.leysoft.infrastructure.http.ServerResource
 import com.leysoft.infrastructure.jdbc.Jdbc
@@ -15,21 +16,20 @@ import kotlinx.coroutines.runBlocking
 
 fun main(): Unit =
     runBlocking(Dispatchers.Default) {
-        Config.env().load()
-            .flatMap { config ->
-                with(config.jdbc) {
-                    JdbcResource.make()
-                        .flatMap { jdbc ->
-                            with(config.server) {
-                                with(jdbc) {
-                                    ServerResource.make {
-                                        productModule()
-                                    }
-                                }
-                            }
-                        }
+        resource {
+            val config = Config.env().load().bind()
+            with(config.jdbc) {
+                val jdbc = JdbcResource.make().bind()
+                with(jdbc) {
+                    with(config.server) {
+                        val server = ServerResource.make {
+                            productModule()
+                        }.bind()
+                        server
+                    }
                 }
-            }.use { it.run() }
+            }
+        }.use { it.run() }
     }
 
 context(Jdbc)

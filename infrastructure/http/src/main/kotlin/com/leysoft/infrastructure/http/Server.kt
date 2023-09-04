@@ -14,10 +14,12 @@ object Server {
             Netty,
             config.port,
             config.host
-        ) {
-            configure()
-            block()
-        }
+        ) { applyConfig(block) }
+
+    private fun Application.applyConfig(block: Application.() -> Unit) {
+        configure()
+        block()
+    }
 
     fun NettyApplicationEngine.run(): NettyApplicationEngine =
         start(true)

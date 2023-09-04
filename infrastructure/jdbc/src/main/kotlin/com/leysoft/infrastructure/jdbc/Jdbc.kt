@@ -2,6 +2,7 @@ package com.leysoft.infrastructure.jdbc
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.left
 import arrow.core.right
 import com.leysoft.core.error.InfrastructureException
 import com.leysoft.infrastructure.jdbc.Jdbc.Instance.SqlException.Data
@@ -9,8 +10,8 @@ import com.vladsch.kotlin.jdbc.Row
 import com.vladsch.kotlin.jdbc.Session
 import com.vladsch.kotlin.jdbc.SqlQuery
 import com.vladsch.kotlin.jdbc.Transaction
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.coroutines.CoroutineContext
 
 interface Jdbc {
     suspend fun <A> first(query: SqlQuery, decoder: Decoder<A>): Either<SqlException, A>
@@ -45,41 +46,49 @@ interface Jdbc {
             fun decode(row: Row): A
         }
 
-        context(Session)
+        context(Session, CoroutineContext)
         fun make(): Jdbc =
             object : Jdbc {
                 override suspend fun <A> first(
                     query: SqlQuery,
                     decoder: Decoder<A>
                 ): Either<SqlException, A> =
-                    withContext(Dispatchers.IO) {
-                        Either.catch(
-                            {
-                                Data.QueryError(it.message ?: "Error trying to execute first")
+                    withContext(this@CoroutineContext) {
+                        Either.catch { first(query) { decoder.decode(it) } }
+                            .mapLeft {
+                                Data.QueryError(
+                                    it.message ?: "Error trying to execute first"
+                                )
                             }
-                        ) {
-                            first(query) { decoder.decode(it) }
-                        }.flatMap { it?.right() ?: Either.Left(Data.SqlNotFound("Not Found")) }
+                            .flatMap {
+                                it?.right() ?: Data.SqlNotFound("Not Found").left()
+                            }
                     }
 
                 override suspend fun <A> list(query: SqlQuery, decoder: Decoder<A>): Either<SqlException, List<A>> =
-                    withContext(Dispatchers.IO) {
-                        Either.catch({
-                            Data.QueryError(it.message ?: "Error trying to execute list")
-                        }) { this@Session.list(query) { decoder.decode(it) } }
+                    withContext(this@CoroutineContext) {
+                        Either.catch { this@Session.list(query) { decoder.decode(it) } }
+                            .mapLeft {
+                                Data.QueryError(
+                                    it.message ?: "Error trying to execute list"
+                                )
+                            }
                     }
 
                 override suspend fun command(command: SqlQuery): Either<SqlException, Int> =
-                    withContext(Dispatchers.IO) {
+                    withContext(this@CoroutineContext) {
                         transaction { it.update(command) }
                             .mapLeft { Data.CommandError(it.message) }
                     }
 
                 override suspend fun <A> transaction(program: (Transaction) -> A): Either<SqlException, A> =
-                    withContext(Dispatchers.IO) {
-                        Either.catch({
-                            Data.TransactionError(it.message ?: "Error trying to execute transaction")
-                        }) { this@Session.transaction { program(it) } }
+                    withContext(this@CoroutineContext) {
+                        Either.catch { this@Session.transaction { program(it) } }
+                            .mapLeft {
+                                Data.TransactionError(
+                                    it.message ?: "Error trying to execute transaction"
+                                )
+                            }
                     }
             }
     }

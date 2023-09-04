@@ -1,6 +1,7 @@
 package com.leysoft.infrastructure.http
 
 import arrow.fx.coroutines.Resource
+import arrow.fx.coroutines.resource
 import com.leysoft.infrastructure.http.config.HttpServerConfig
 import io.ktor.server.application.*
 import io.ktor.server.netty.*
@@ -10,7 +11,7 @@ object ServerResource {
     fun make(
         block: Application.() -> Unit
     ): Resource<NettyApplicationEngine> =
-        Resource.just(
+        resource {
             Server.create(this@HttpServerConfig, block)
-        )
+        }
 }
