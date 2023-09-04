@@ -60,10 +60,15 @@ allprojects {
     }
 
     test {
+        useJUnitPlatform()
+    }
+
+    /* for spek
+    test {
         useJUnitPlatform {
             includeEngines 'spek2'
         }
-    }
+    }*/
 }
 
 subprojects {
@@ -86,6 +91,7 @@ subprojects {
     def logback_version = "1.4.0"
     def logback_encoder_version = "7.0.1"
     def spek_version = "2.0.9"
+    def kotest_version = "5.7.1"
     def groovy_version = "3.0.9"
 
     buildscript {
@@ -125,9 +131,12 @@ subprojects {
         implementation "org.codehaus.groovy:groovy-all:$groovy_version"
 
         testImplementation "com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0"
+        testImplementation "io.kotest:kotest-runner-junit5:$kotest_version"
+        testImplementation "io.kotest:kotest-assertions-core:$kotest_version"
+        testImplementation "io.kotest:kotest-property:$kotest_version"
         testImplementation "org.spekframework.spek2:spek-dsl-jvm:$spek_version"
-        testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spek_version"
 
+        testRuntimeOnly "org.spekframework.spek2:spek-runner-junit5:$spek_version"
         testRuntimeOnly "org.jetbrains.kotlin:kotlin-reflect" // for spek
 
         //kapt "io.arrow-kt:arrow-meta:$arrow_version"
