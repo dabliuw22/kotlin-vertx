@@ -20,7 +20,7 @@ interface Jdbc {
     suspend fun <A> transaction(program: (Transaction) -> A): Either<SqlException, A>
 
     companion object Instance {
-        abstract class SqlException(
+        sealed class SqlException(
             override val message: String
         ) : InfrastructureException(message) {
             companion object Data {

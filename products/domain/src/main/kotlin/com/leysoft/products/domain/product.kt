@@ -49,9 +49,9 @@ data class ProductCreatedAt(val value: OffsetDateTime = OffsetDateTime.now()) {
 
 typealias ProductCreatedAtCore = com.leysoft.core.domain.ProductCreatedAt
 
-fun ProductCreatedAt.toCore(): ProductCreatedAtCore = ProductCreatedAtCore(value)
+fun ProductCreatedAt.toCore(): ProductCreatedAtCore = ProductCreatedAtCore(value.toZonedDateTime())
 
-fun ProductCreatedAtCore.fromCore(): ProductCreatedAt = ProductCreatedAt(value)
+fun ProductCreatedAtCore.fromCore(): ProductCreatedAt = ProductCreatedAt(value.toOffsetDateTime())
 
 @optics
 data class Product(

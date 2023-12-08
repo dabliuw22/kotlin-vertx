@@ -80,18 +80,18 @@ subprojects {
     apply plugin: 'com.github.johnrengelman.shadow'
     //apply plugin: 'kotlin-kapt'
 
-    def ktor_version= "2.3.4"
-    def arrow_version = "1.2.0"
-    def jackson_version = "2.11.1"
-    def kotlin_jdbc_version = "0.5.0"
+    def ktor_version= "2.3.6"
+    def arrow_version = "1.2.1"
+    def jackson_version = "2.16.0"
+    def kotlin_jdbc_version = "0.5.2"
     def kotlin_coroutines_version = "1.7.3"
     def postgres_version = "42.2.12"
     def hikari_version = "3.4.5"
-    def slf4j_version = "1.7.36"
-    def logback_version = "1.4.0"
-    def logback_encoder_version = "7.0.1"
-    def spek_version = "2.0.9"
-    def kotest_version = "5.7.1"
+    def slf4j_version = "2.0.9"
+    def logback_version = "1.4.14"
+    def logback_encoder_version = "7.4"
+    def spek_version = "2.0.19"
+    def kotest_version = "5.8.0"
     def groovy_version = "3.0.9"
 
     buildscript {
