@@ -3,9 +3,11 @@ package com.leysoft.infrastructure.jdbc
 import arrow.core.Either
 import arrow.core.flatMap
 import arrow.core.left
+import arrow.core.raise.either
 import arrow.core.right
 import com.leysoft.core.error.InfrastructureException
 import com.leysoft.infrastructure.jdbc.Jdbc.Instance.SqlException.Data
+import com.leysoft.infrastructure.logger.Logger
 import com.vladsch.kotlin.jdbc.Row
 import com.vladsch.kotlin.jdbc.Session
 import com.vladsch.kotlin.jdbc.SqlQuery
@@ -20,6 +22,8 @@ interface Jdbc {
     suspend fun <A> transaction(program: (Transaction) -> A): Either<SqlException, A>
 
     companion object Instance {
+        private val log: Logger by lazy { Logger.get<Jdbc>() }
+
         sealed class SqlException(
             override val message: String
         ) : InfrastructureException(message) {
@@ -67,12 +71,15 @@ interface Jdbc {
 
                 override suspend fun <A> list(query: SqlQuery, decoder: Decoder<A>): Either<SqlException, List<A>> =
                     withContext(this@CoroutineContext) {
-                        Either.catch { this@Session.list(query) { decoder.decode(it) } }
+                        log.info("Start Jdbc.list()")
+                        val result = either<Throwable, List<A>> { this@Session.list(query) { decoder.decode(it) } }
                             .mapLeft {
                                 Data.QueryError(
                                     it.message ?: "Error trying to execute list"
                                 )
                             }
+                        log.info("End Jdbc.list()")
+                        result
                     }
 
                 override suspend fun command(command: SqlQuery): Either<SqlException, Int> =
@@ -83,7 +90,7 @@ interface Jdbc {
 
                 override suspend fun <A> transaction(program: (Transaction) -> A): Either<SqlException, A> =
                     withContext(this@CoroutineContext) {
-                        Either.catch { this@Session.transaction { program(it) } }
+                        either<Throwable, A> { this@Session.transaction { program(it) } }
                             .mapLeft {
                                 Data.TransactionError(
                                     it.message ?: "Error trying to execute transaction"

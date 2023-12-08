@@ -3,11 +3,11 @@ package com.leysoft.infrastructure.jdbc
 import arrow.fx.coroutines.Resource
 import arrow.fx.coroutines.continuations.resource
 import arrow.fx.coroutines.release
+import com.leysoft.core.concurrent.IO
 import com.leysoft.infrastructure.jdbc.config.JdbcConfig
 import com.vladsch.kotlin.jdbc.Session
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import kotlinx.coroutines.Dispatchers
 import com.vladsch.kotlin.jdbc.session as jdbc
 
 object JdbcResource {
@@ -18,7 +18,7 @@ object JdbcResource {
             val jdbc = this@JdbcConfig
             val session = jdbc.session().bind()
             with(session) {
-                with(Dispatchers.IO) { Jdbc.make() }
+                with(IO) { Jdbc.make() }
             }
         }
 

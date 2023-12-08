@@ -24,8 +24,8 @@ allprojects {
     }
 
     java {
-        sourceCompatibility = JavaVersion.VERSION_20
-        targetCompatibility = JavaVersion.VERSION_20
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
     kotlin {
@@ -36,7 +36,7 @@ allprojects {
 
     compileKotlin {
         kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_20
+            jvmTarget = JavaVersion.VERSION_21
             freeCompilerArgs += "-version"
             freeCompilerArgs += "-script"
         }
@@ -45,7 +45,7 @@ allprojects {
     tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
             verbose = true
-            jvmTarget = JavaVersion.VERSION_20
+            jvmTarget = JavaVersion.VERSION_21
             freeCompilerArgs +=  [
                     "-Xcontext-receivers",
                     "-Xenable-builder-inference",
@@ -56,7 +56,7 @@ allprojects {
     }
 
     compileTestKotlin {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_20
+        kotlinOptions.jvmTarget = JavaVersion.VERSION_21
     }
 
     test {
@@ -95,7 +95,7 @@ subprojects {
     def groovy_version = "3.0.9"
 
     buildscript {
-        ext.kotlin_version = '1.9.10'
+        ext.kotlin_version = '1.9.20'
         repositories {
             mavenCentral()
         }

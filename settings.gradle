@@ -1,9 +1,9 @@
 pluginManagement {
     plugins {
         id 'application'
-        id 'org.jetbrains.kotlin.jvm' version '1.9.10'
-        id 'org.jetbrains.kotlin.kapt' version '1.9.10'
-        id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.10'
+        id 'org.jetbrains.kotlin.jvm' version '1.9.21'
+        id 'org.jetbrains.kotlin.kapt' version '1.9.21'
+        id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.21'
         //id 'org.jlleitschuh.gradle.ktlint' version '10.3.0'
         id 'org.jmailen.kotlinter' version '3.11.1'
         id 'com.github.johnrengelman.shadow' version '7.1.2'
@@ -18,6 +18,8 @@ include 'core:domain'
 project(':core:domain').name = 'core-domain'
 include 'core:error'
 project(':core:error').name = 'core-error'
+include 'core:concurrent'
+project(':core:concurrent').name = 'core-concurrent'
 
 include 'infrastructure:json'
 project(':infrastructure:json').name = 'infrastructure-json'
