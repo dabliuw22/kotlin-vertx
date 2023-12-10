@@ -1,6 +1,8 @@
 package com.leysoft.products.application
 
 import arrow.core.Either
+import arrow.core.flatMap
+import arrow.core.right
 import com.leysoft.core.domain.Product
 import com.leysoft.core.domain.ProductId
 import com.leysoft.core.error.ProductException
@@ -20,7 +22,8 @@ interface ProductService {
     companion object Instance {
         fun make(repository: ProductRepository): ProductService = object : ProductService {
             override suspend fun getBy(id: ProductId): Either<ProductException, Product> =
-                repository.findBy(id.fromCore())
+                id.fromCore().right()
+                    .flatMap { repository.findBy(it) }
                     .map { it.toCore() }
 
             override suspend fun getAll(): Either<ProductException, List<Product>> =

@@ -58,7 +58,8 @@ interface Jdbc {
                     decoder: Decoder<A>
                 ): Either<SqlException, A> =
                     withContext(this@CoroutineContext) {
-                        Either.catch { first(query) { decoder.decode(it) } }
+                        log.info("Start Jdbc.first(): ${query.statement}")
+                        either<Throwable, A?> { first(query) { decoder.decode(it) } }
                             .mapLeft {
                                 Data.QueryError(
                                     it.message ?: "Error trying to execute first"
@@ -67,19 +68,20 @@ interface Jdbc {
                             .flatMap {
                                 it?.right() ?: Data.SqlNotFound("Not Found").left()
                             }
+                            .onLeft { error -> log.info("Error executing Jdbc.first(): $error") }
+                            .onRight { log.info("End Jdbc.first(): ${query.statement}") }
                     }
 
                 override suspend fun <A> list(query: SqlQuery, decoder: Decoder<A>): Either<SqlException, List<A>> =
                     withContext(this@CoroutineContext) {
-                        log.info("Start Jdbc.list()")
-                        val result = either<Throwable, List<A>> { this@Session.list(query) { decoder.decode(it) } }
+                        log.info("Start Jdbc.list(): ${query.statement}")
+                        either<Throwable, List<A>> { this@Session.list(query) { decoder.decode(it) } }
                             .mapLeft {
                                 Data.QueryError(
                                     it.message ?: "Error trying to execute list"
                                 )
-                            }
-                        log.info("End Jdbc.list()")
-                        result
+                            }.onLeft { error -> log.info("Error executing Jdbc.list(): $error") }
+                            .onRight { log.info("End Jdbc.list(): ${query.statement}") }
                     }
 
                 override suspend fun command(command: SqlQuery): Either<SqlException, Int> =
@@ -90,12 +92,15 @@ interface Jdbc {
 
                 override suspend fun <A> transaction(program: (Transaction) -> A): Either<SqlException, A> =
                     withContext(this@CoroutineContext) {
+                        log.info("Start Jdbc.transaction()")
                         either<Throwable, A> { this@Session.transaction { program(it) } }
                             .mapLeft {
                                 Data.TransactionError(
                                     it.message ?: "Error trying to execute transaction"
                                 )
                             }
+                            .onLeft { error -> log.info("Error executing Jdbc.transaction(): $error") }
+                            .onRight { log.info("End Jdbc.transaction()") }
                     }
             }
     }

@@ -29,6 +29,7 @@ allprojects {
     }
 
     kotlin {
+        jvmToolchain(21)
         compilerOptions {
             apiVersion = KotlinVersion.KOTLIN_1_9
         }
@@ -41,6 +42,7 @@ allprojects {
             freeCompilerArgs += "-script"
         }
     }
+
 
     tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
@@ -95,7 +97,7 @@ subprojects {
     def groovy_version = "3.0.9"
 
     buildscript {
-        ext.kotlin_version = '1.9.20'
+        ext.kotlin_version = '1.9.21'
         repositories {
             mavenCentral()
         }

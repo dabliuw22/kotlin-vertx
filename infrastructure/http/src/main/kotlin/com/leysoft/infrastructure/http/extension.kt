@@ -1,7 +1,7 @@
 package com.leysoft.infrastructure.http
 
-import arrow.core.Either
-import arrow.core.Option
+import arrow.core.*
+import com.leysoft.core.error.BaseException
 import com.leysoft.core.error.InfrastructureException
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -29,6 +29,12 @@ suspend inline fun <reified A : Any> ApplicationCall.respondJson(
 
 fun ApplicationCall.getParam(key: String): Option<String> =
     Option.fromNullable(parameters[key])
+
+fun <A> ApplicationCall.getRequiredParam(key: String, f: (String) -> A): Either<BaseException, A> =
+    when (val id = getParam(key)) {
+        is Some -> f(id.value).right()
+        else -> RequiredParameterException(key).left()
+    }
 
 data class RequiredParameterException(override val message: String) :
     InfrastructureException(message)

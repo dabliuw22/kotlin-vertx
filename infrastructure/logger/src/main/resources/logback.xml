@@ -28,6 +28,7 @@
     <logger name="io.netty" level="INFO"/>
     <logger name="io.vertx" level="INFO"/>
     <logger name="reactor.util" level="INFO"/>
+    <logger name="io.ktor.routing" level="INFO"/>
 
     <root level="all">
         <appender-ref ref="stdOut"/>
