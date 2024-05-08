@@ -28,7 +28,11 @@ private fun Route.all(service: ProductService) {
         val program = effect {
             service.getAll().map { product -> product.toDto() }
         }
-        program.toEither().fold({ errorHandler }, { call.respondJson(HttpStatusCode.OK, it) })
+        program.toEither()
+            .fold(
+                ifLeft = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
+                ifRight = { call.respondJson(HttpStatusCode.OK, it) }
+            )
     }
 }
 
@@ -38,7 +42,11 @@ private fun Route.get(service: ProductService) {
             val id = call.getRequiredParam("id") { it.toProductId() }
             service.getBy(id)
         }
-        program.toEither().fold({ errorHandler }, { call.respondJson(HttpStatusCode.OK, it) })
+        program.toEither()
+            .fold(
+                ifLeft = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
+                ifRight = { call.respondJson(HttpStatusCode.OK, it) }
+            )
     }
 }
 
@@ -48,7 +56,11 @@ private fun Route.create(service: ProductService) {
             val product = call.receive<PutProductDto>().toDomain()
             service.create(product)
         }
-        program.toEither().fold({ errorHandler }, { call.respondJson(HttpStatusCode.OK, it) })
+        program.toEither()
+            .fold(
+                ifLeft = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
+                ifRight = { call.respondJson(HttpStatusCode.OK, it) }
+            )
     }
 }
 
@@ -58,6 +70,10 @@ private fun Route.delete(service: ProductService) {
             val id = call.getRequiredParam("id") { it.toProductId() }
             service.deleteBy(id)
         }
-        program.toEither().fold({ errorHandler }, { call.respondJson(HttpStatusCode.OK, it) })
+        program.toEither()
+            .fold(
+                ifLeft = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
+                ifRight = { call.respondJson(HttpStatusCode.OK, it) }
+            )
     }
 }
