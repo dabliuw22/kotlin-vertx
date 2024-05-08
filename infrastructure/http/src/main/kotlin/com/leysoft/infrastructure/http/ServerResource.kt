@@ -8,7 +8,7 @@ import io.ktor.server.netty.*
 
 object ServerResource {
     context(HttpServerConfig)
-    fun make(
+    operator fun invoke(
         block: Application.() -> Unit
     ): Resource<NettyApplicationEngine> =
         resource {

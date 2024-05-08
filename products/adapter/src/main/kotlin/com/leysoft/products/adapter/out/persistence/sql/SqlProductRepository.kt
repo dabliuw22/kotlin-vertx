@@ -1,13 +1,14 @@
 package com.leysoft.products.adapter.out.persistence.sql
 
 import arrow.core.*
+import arrow.core.raise.*
 import com.leysoft.core.error.CreateProductException
 import com.leysoft.core.error.CustomProductException
 import com.leysoft.core.error.DeleteProductException
 import com.leysoft.core.error.NotFoundProductException
 import com.leysoft.core.error.ProductException
 import com.leysoft.infrastructure.jdbc.Jdbc
-import com.leysoft.infrastructure.jdbc.Jdbc.Instance.SqlException.Data
+import com.leysoft.infrastructure.jdbc.Jdbc.Companion.SqlNotFound
 import com.leysoft.infrastructure.logger.Logger
 import com.leysoft.products.domain.Product
 import com.leysoft.products.domain.ProductCreatedAt
@@ -23,40 +24,71 @@ context(Jdbc)
 class SqlProductRepository private constructor() :
     ProductRepository {
 
-    override suspend fun findBy(id: ProductId): Either<ProductException, Product> =
-        log.info("Init findBy").let { _ ->
-            first(getById(id), decoder)
-                .mapLeft {
-                    when (val result = it) {
-                        is Data.SqlNotFound ->
-                            NotFoundProductException(result.message)
-                        else -> CustomProductException(result.message)
-                    }
+    context(Raise<ProductException>)
+    override suspend fun findBy(id: ProductId): Product {
+        log.info("Init findBy")
+        val result = fold(
+            block = { first(getById(id), decoder) },
+            recover = { error: Jdbc.Companion.SqlException ->
+                when (error) {
+                    is SqlNotFound ->
+                        raise(NotFoundProductException(error.message))
+                    else -> raise(CustomProductException(error.message))
                 }
-        }.also { log.info("End findBy") }
+            },
+            transform = ::identity
+        )
+        log.info("End findBy")
+        return result
+    }
 
-    override suspend fun findAll(): Either<ProductException, List<Product>> =
-        list(getAll, decoder)
-            .mapLeft { CustomProductException(it.message) }
+    context(Raise<ProductException>)
+    override suspend fun findAll(): List<Product> {
+        log.info("Init findAll")
+        val result = fold(
+            block = { list(getAll, decoder) },
+            recover = { error: Jdbc.Companion.SqlException -> raise(CustomProductException(error.message)) },
+            transform = ::identity
+        )
+        log.info("End findAll")
+        return result
+    }
 
-    override suspend fun save(product: Product): Either<ProductException, Unit> =
-        command(insert(product))
-            .mapLeft { CreateProductException(it.message) }
-            .flatMap {
-                if (it > 0) Unit.right()
-                else CreateProductException("Not save Product: ${product.id}").left()
-            }
+    context(Raise<ProductException>)
+    override suspend fun save(product: Product) {
+        log.info("Init save")
+        val result = fold(
+            block = { command(insert(product)).await() },
+            recover = { error: Jdbc.Companion.SqlException -> raise(CreateProductException(error.message)) },
+            transform = ::identity
+        )
+        product.wasSaved(result)
+        log.info("End save")
+    }
 
-    override suspend fun deleteBy(id: ProductId): Either<ProductException, Unit> =
-        command(delById(id))
-            .mapLeft { DeleteProductException(it.message) }
-            .flatMap {
-                if (it > 0) Unit.right()
-                else DeleteProductException("Not delete Product: $id").left()
-            }
+    context(Raise<ProductException>)
+    override suspend fun deleteBy(id: ProductId) {
+        log.info("Init deleteBy")
+        val result = fold(
+            block = { command(delById(id)).await() },
+            recover = { error: Jdbc.Companion.SqlException -> raise(DeleteProductException(error.message)) },
+            transform = ::identity
+        )
+        id.wasDeleted(result)
+        log.info("End deleteBy")
+    }
 
     companion object {
+        @JvmStatic
         private val log: Logger by lazy { Logger.get<SqlProductRepository>() }
+
+        context(Raise<ProductException>)
+        private fun Product.wasSaved(result: Int): Unit =
+            ensure(result <= 0) { CreateProductException("Not save Product: ${this.id}") }
+
+        context(Raise<ProductException>)
+        private fun ProductId.wasDeleted(result: Int): Unit =
+            ensure(result <= 0) { DeleteProductException("Not delete Product: $this") }
 
         private val getById: (ProductId) -> SqlQuery = {
             sqlQuery(
@@ -89,7 +121,7 @@ class SqlProductRepository private constructor() :
             )
         }
 
-        private val decoder: Jdbc.Instance.Decoder<Product> = object : Jdbc.Instance.Decoder<Product> {
+        private val decoder: Jdbc.Companion.Decoder<Product> = object : Jdbc.Companion.Decoder<Product> {
             override fun decode(row: Row): Product =
                 Product(
                     id = ProductId(row.string("id")),
@@ -100,7 +132,7 @@ class SqlProductRepository private constructor() :
         }
 
         context(Jdbc)
-        fun make(): ProductRepository =
+        operator fun invoke(): ProductRepository =
             SqlProductRepository()
     }
 }

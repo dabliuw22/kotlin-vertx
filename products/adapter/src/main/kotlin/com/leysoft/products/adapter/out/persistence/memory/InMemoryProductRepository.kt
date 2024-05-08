@@ -1,10 +1,7 @@
 package com.leysoft.products.adapter.out.persistence.memory
 
-import arrow.core.Either
-import arrow.core.flatMap
-import arrow.core.left
-import arrow.core.raise.either
-import arrow.core.right
+import arrow.core.raise.Raise
+import arrow.core.raise.catch
 import arrow.fx.coroutines.Atomic
 import com.leysoft.core.error.CreateProductException
 import com.leysoft.core.error.DeleteProductException
@@ -19,43 +16,46 @@ typealias Storage = Atomic<Map<String, Product>>
 class InMemoryProductRepository private constructor(private val storage: Storage) :
     ProductRepository {
 
-    override suspend fun findBy(id: ProductId): Either<ProductException, Product> =
-        either<Throwable, Map<String, Product>> { storage.get() }
-            .mapLeft { NotFoundProductException("Not found product: $id") }
-            .map { it[id.value] }
-            .flatMap { it?.right() ?: NotFoundProductException("Not found product: $id").left() }
+    context(Raise<ProductException>)
+    override suspend fun findBy(id: ProductId): Product =
+        catch(
+            block = { storage.get()[id.value] ?: raise(NotFoundProductException("Not found product: $id")) },
+            catch = { raise(NotFoundProductException("Not found product: $id")) }
+        )
 
-    override suspend fun findAll(): Either<ProductException, List<Product>> =
-        either<Throwable, List<Product>> {
-            storage.get().values.toList()
-        }.mapLeft { NotFoundProductException("Not found products") }
+    context(Raise<ProductException>)
+    override suspend fun findAll(): List<Product> =
+        catch(
+            block = { storage.get().values.toList() },
+            catch = { raise(NotFoundProductException("Not found products")) }
+        )
 
-    override suspend fun save(product: Product): Either<ProductException, Unit> {
-        return when (val result = findBy(product.id)) {
-            is Either.Left ->
-                when (val error = result.value) {
-                    is NotFoundProductException -> either<Throwable, Unit> {
-                        storage.update { it.plus(Pair(product.id.value, product)) }
-                    }.mapLeft { CreateProductException("Not save Product: ${product.id}") }
-                    else -> error.left()
-                }
-            else -> CreateProductException("Not save Product: ${product.id}").left()
-        }
+    context(Raise<ProductException>)
+    override suspend fun save(product: Product) {
+        val result = findBy(product.id)
+        catch(
+            block = {
+                storage.update { it.plus(Pair(result.id.value, product)) }
+            },
+            catch = { raise(CreateProductException("Not save Product: ${product.id}")) }
+        )
     }
 
-    override suspend fun deleteBy(id: ProductId): Either<ProductException, Unit> {
-        return when (val result = findBy(id)) {
-            is Either.Right -> {
-                return Either.catch({ DeleteProductException("Not delete Product: $id") }) {
-                    storage.update { it.minus(id.value) }
-                }
-            }
-            is Either.Left -> result.value.left()
-        }
+    context(Raise<ProductException>)
+    override suspend fun deleteBy(id: ProductId) {
+        val result = findBy(id)
+        catch(
+            block = {
+                storage.update { it.minus(result.id.value) }
+            },
+            catch = { raise(DeleteProductException("Not delete Product: $id")) }
+        )
     }
 
     companion object {
-        fun make(storage: Storage): ProductRepository =
+        operator fun invoke(
+            storage: Storage
+        ): ProductRepository =
             InMemoryProductRepository(storage)
     }
 }

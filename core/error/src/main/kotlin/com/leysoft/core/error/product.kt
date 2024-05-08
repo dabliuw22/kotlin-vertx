@@ -1,17 +1,14 @@
 package com.leysoft.core.error
 
-abstract class BaseException(
-    override val message: String
-) :
-    RuntimeException(message)
+sealed interface BaseException
 
-abstract class InfrastructureException(
-    override val message: String
-) : BaseException(message)
+open class InfrastructureException(
+    open val message: String
+) : BaseException
 
-abstract class ProductException(
-    override val message: String
-) : BaseException(message)
+open class ProductException(
+    open val message: String
+) : BaseException
 
 data class NotFoundProductException(
     override val message: String

@@ -1,8 +1,6 @@
 package com.leysoft.products.application
 
-import arrow.core.Either
-import arrow.core.flatMap
-import arrow.core.right
+import arrow.core.raise.Raise
 import com.leysoft.core.domain.Product
 import com.leysoft.core.domain.ProductId
 import com.leysoft.core.error.ProductException
@@ -11,29 +9,39 @@ import com.leysoft.products.domain.persistence.ProductRepository
 import com.leysoft.products.domain.toCore
 
 interface ProductService {
-    suspend fun getBy(id: ProductId): Either<ProductException, Product>
+    context(Raise<ProductException>)
+    suspend fun getBy(id: ProductId): Product
 
-    suspend fun getAll(): Either<ProductException, List<Product>>
+    context(Raise<ProductException>)
+    suspend fun getAll(): List<Product>
 
-    suspend fun create(product: Product): Either<ProductException, Unit>
+    context(Raise<ProductException>)
+    suspend fun create(product: Product)
 
-    suspend fun deleteBy(id: ProductId): Either<ProductException, Unit>
+    context(Raise<ProductException>)
+    suspend fun deleteBy(id: ProductId)
 
-    companion object Instance {
-        fun make(repository: ProductRepository): ProductService = object : ProductService {
-            override suspend fun getBy(id: ProductId): Either<ProductException, Product> =
-                id.fromCore().right()
-                    .flatMap { repository.findBy(it) }
+    companion object {
+
+        operator fun invoke(repository: ProductRepository): ProductService = object : ProductService {
+
+            context(Raise<ProductException>)
+            override suspend fun getBy(id: ProductId): Product {
+                val result = repository.findBy(id.fromCore())
+                return result.toCore()
+            }
+
+            context(Raise<ProductException>)
+            override suspend fun getAll(): List<Product> =
+                repository.findAll()
                     .map { it.toCore() }
 
-            override suspend fun getAll(): Either<ProductException, List<Product>> =
-                repository.findAll()
-                    .map { it.map { product -> product.toCore() } }
-
-            override suspend fun create(product: Product): Either<ProductException, Unit> =
+            context(Raise<ProductException>)
+            override suspend fun create(product: Product) =
                 repository.save(product.fromCore())
 
-            override suspend fun deleteBy(id: ProductId): Either<ProductException, Unit> =
+            context(Raise<ProductException>)
+            override suspend fun deleteBy(id: ProductId) =
                 repository.deleteBy(id.fromCore())
         }
     }

@@ -2,7 +2,6 @@ package com.leysoft.infrastructure.jdbc
 
 import arrow.fx.coroutines.Resource
 import arrow.fx.coroutines.continuations.resource
-import arrow.fx.coroutines.release
 import com.leysoft.core.concurrent.IO
 import com.leysoft.infrastructure.jdbc.config.JdbcConfig
 import com.vladsch.kotlin.jdbc.Session
@@ -13,12 +12,14 @@ import com.vladsch.kotlin.jdbc.session as jdbc
 object JdbcResource {
 
     context(JdbcConfig)
-    fun make(): Resource<Jdbc> =
+    operator fun invoke(): Resource<Jdbc> =
         resource {
             val jdbc = this@JdbcConfig
             val session = jdbc.session().bind()
             with(session) {
-                with(IO) { Jdbc.make() }
+                with(IO) {
+                    Jdbc.invoke()
+                }
             }
         }
 
@@ -33,12 +34,14 @@ object JdbcResource {
     }
 
     private fun JdbcConfig.source(): Resource<HikariDataSource> =
-        hikari().flatMap {
-            resource { HikariDataSource(it) } release { it.close() }
+        resource {
+            val source = hikari().bind()
+            resource { HikariDataSource(source) } release { it.close() }
         }
 
     private fun JdbcConfig.session(): Resource<Session> =
-        source().flatMap {
-            resource { jdbc(it) } release { it.close() }
+        resource {
+            val source = source().bind()
+            resource { jdbc(source) } release { it.close() }
         }
 }

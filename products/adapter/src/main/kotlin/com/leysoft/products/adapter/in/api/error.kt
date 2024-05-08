@@ -6,29 +6,38 @@ import com.leysoft.infrastructure.http.HttpErrorHandler
 import com.leysoft.infrastructure.http.respondJson
 import io.ktor.http.*
 
-val errorHandler: HttpErrorHandler<Throwable> = {
-    { throwable ->
-        when (throwable) {
+val errorHandler: HttpErrorHandler<BaseException> = {
+    { error ->
+        when (error) {
             is NotFoundProductException -> respondJson(
                 HttpStatusCode.NotFound,
-                ErrorResponse(throwable.message)
+                ErrorResponse(error.message)
             )
             is CreateProductException -> respondJson(
                 HttpStatusCode.Conflict,
-                ErrorResponse(throwable.message)
+                ErrorResponse(error.message)
             )
             is DeleteProductException -> respondJson(
                 HttpStatusCode.Conflict,
-                ErrorResponse(throwable.message)
+                ErrorResponse(error.message)
             )
             is CustomProductException -> respondJson(
                 HttpStatusCode.Conflict,
-                ErrorResponse(throwable.message)
+                ErrorResponse(error.message)
             )
             else -> respondJson(
                 HttpStatusCode.InternalServerError,
-                ErrorResponse(throwable.message ?: "Internal Server Error")
+                ErrorResponse("Internal Server Error")
             )
         }
+    }
+}
+
+val throwableHandler: HttpErrorHandler<Throwable> = {
+    { throwable ->
+        respondJson(
+            HttpStatusCode.InternalServerError,
+            ErrorResponse(throwable.message ?: "Internal Server Error")
+        )
     }
 }

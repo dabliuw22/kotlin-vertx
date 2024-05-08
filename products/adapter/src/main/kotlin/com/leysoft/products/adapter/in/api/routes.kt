@@ -1,6 +1,7 @@
 package com.leysoft.products.adapter.`in`.api
 
-import arrow.core.flatMap
+import arrow.core.raise.effect
+import arrow.core.raise.toEither
 import com.leysoft.core.domain.toProductId
 import com.leysoft.infrastructure.http.*
 import com.leysoft.products.application.ProductService
@@ -9,7 +10,9 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 
-fun Application.products(service: ProductService) {
+fun Application.products(
+    service: ProductService
+) {
     routing {
         route("/products") {
             all(service)
@@ -22,42 +25,39 @@ fun Application.products(service: ProductService) {
 
 private fun Route.all(service: ProductService) {
     get {
-        service.getAll()
-            .map { it.map { product -> product.toDto() } }
-            .handle({
-                call.respondJson(HttpStatusCode.OK, it)
-            }) { errorHandler(call) }
+        val program = effect {
+            service.getAll().map { product -> product.toDto() }
+        }
+        program.toEither().fold({ errorHandler }, { call.respondJson(HttpStatusCode.OK, it) })
     }
 }
 
 private fun Route.get(service: ProductService) {
     get("/{id}") {
-        call.getRequiredParam("id") { it }
-            .map { it.toProductId() }
-            .flatMap { service.getBy(it) }
-            .handle({
-                call.respondJson(HttpStatusCode.OK, it)
-            }) { errorHandler(call) }
+        val program = effect {
+            val id = call.getRequiredParam("id") { it.toProductId() }
+            service.getBy(id)
+        }
+        program.toEither().fold({ errorHandler }, { call.respondJson(HttpStatusCode.OK, it) })
     }
 }
 
 private fun Route.create(service: ProductService) {
     post {
-        val product = call.receive<PutProductDto>().toDomain()
-        service.create(product)
-            .handle({
-                call.response.status(HttpStatusCode.Created)
-            }) { errorHandler(call) }
+        val program = effect {
+            val product = call.receive<PutProductDto>().toDomain()
+            service.create(product)
+        }
+        program.toEither().fold({ errorHandler }, { call.respondJson(HttpStatusCode.OK, it) })
     }
 }
 
 private fun Route.delete(service: ProductService) {
     delete("/{id}") {
-        call.getRequiredParam("id") { it }
-            .map { it.toProductId() }
-            .flatMap { service.deleteBy(it) }
-            .handle({
-                call.response.status(HttpStatusCode.Accepted)
-            }) { errorHandler(call) }
+        val program = effect {
+            val id = call.getRequiredParam("id") { it.toProductId() }
+            service.deleteBy(id)
+        }
+        program.toEither().fold({ errorHandler }, { call.respondJson(HttpStatusCode.OK, it) })
     }
 }
