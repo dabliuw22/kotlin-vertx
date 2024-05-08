@@ -26,11 +26,6 @@ suspend fun <A> ApplicationCall.respond(
     error: HttpErrorHandler<BaseException>
 ) = f.getOrElse { error.invoke(this) }
 
-fun <L, R> Either<L, R>.handle(
-    success: (R) -> Unit,
-    failure: (L) -> Unit
-): Unit = fold({ failure(it) }, { success(it) })
-
 suspend inline fun <reified A : Any> ApplicationCall.respondJson(
     status: HttpStatusCode,
     message: A
