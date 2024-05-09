@@ -1,6 +1,7 @@
 package com.leysoft.infrastructure.jdbc
 
 import arrow.core.raise.Raise
+import arrow.core.raise.catch
 import arrow.core.raise.recover
 import com.leysoft.core.error.InfrastructureException
 import com.leysoft.infrastructure.logger.Logger
@@ -64,9 +65,9 @@ interface Jdbc {
                 ): A =
                     withContext(this@CoroutineContext) {
                         log.info("Start Jdbc.first(): ${query.statement}")
-                        val result = recover(
+                        val result = catch(
                             block = { first(query) { decoder.decode(it) } ?: raise(SqlNotFound("Not Found")) },
-                            recover = { error: Throwable ->
+                            catch = { error: Throwable ->
                                 raise(
                                     QueryError(
                                         error.message ?: "Error trying to execute first"
@@ -82,9 +83,9 @@ interface Jdbc {
                 override suspend fun <A> list(query: SqlQuery, decoder: Decoder<A>): List<A> =
                     withContext(this@CoroutineContext) {
                         log.info("Start Jdbc.list(): ${query.statement}")
-                        val result = recover(
+                        val result = catch(
                             block = { this@Session.list(query) { decoder.decode(it) } },
-                            recover = { error: Throwable ->
+                            catch = { error: Throwable ->
                                 raise(
                                     QueryError(
                                         error.message ?: "Error trying to execute list"
@@ -101,7 +102,8 @@ interface Jdbc {
                     withContext(this@CoroutineContext) {
                         recover(
                             block = { transaction { it.update(command) } },
-                            recover = { error: Throwable ->
+                            recover = { error: SqlException -> raise(CommandError(error.message)) },
+                            catch = { error: Throwable ->
                                 raise(
                                     CommandError(
                                         error.message ?: "Error trying to execute command"
@@ -116,9 +118,9 @@ interface Jdbc {
                     withContext(this@CoroutineContext) {
                         async {
                             log.info("Start Jdbc.transaction()")
-                            val result = recover(
+                            val result = catch(
                                 block = { this@Session.transaction { program(it) } },
-                                recover = { error: Throwable ->
+                                catch = { error: Throwable ->
                                     raise(
                                         TransactionError(
                                             error.message ?: "Error trying to execute transaction"

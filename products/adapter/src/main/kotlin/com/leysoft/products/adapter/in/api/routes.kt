@@ -1,7 +1,6 @@
 package com.leysoft.products.adapter.`in`.api
 
-import arrow.core.raise.effect
-import arrow.core.raise.toEither
+import arrow.core.raise.fold
 import com.leysoft.core.domain.toProductId
 import com.leysoft.infrastructure.http.*
 import com.leysoft.products.application.ProductService
@@ -25,55 +24,55 @@ fun Application.products(
 
 private fun Route.all(service: ProductService) {
     get {
-        val program = effect {
-            service.getAll().map { product -> product.toDto() }
-        }
-        program.toEither()
-            .fold(
-                ifLeft = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
-                ifRight = { call.respondJson(HttpStatusCode.OK, it) }
-            )
+        fold(
+            block = {
+                service.getAll().map { product -> product.toDto() }
+            },
+            recover = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
+            catch = { throwableHandler(it).let { response -> call.respondJson(response.code, response) } },
+            transform = { call.respondJson(HttpStatusCode.OK, it) }
+        )
     }
 }
 
 private fun Route.get(service: ProductService) {
     get("/{id}") {
-        val program = effect {
-            val id = call.getRequiredParam("id") { it.toProductId() }
-            service.getBy(id)
-        }
-        program.toEither()
-            .fold(
-                ifLeft = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
-                ifRight = { call.respondJson(HttpStatusCode.OK, it) }
-            )
+        fold(
+            block = {
+                val id = call.getRequiredParam("id") { it.toProductId() }
+                service.getBy(id)
+            },
+            recover = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
+            catch = { throwableHandler(it).let { response -> call.respondJson(response.code, response) } },
+            transform = { call.respondJson(HttpStatusCode.OK, it) }
+        )
     }
 }
 
 private fun Route.create(service: ProductService) {
     post {
-        val program = effect {
-            val product = call.receive<PutProductDto>().toDomain()
-            service.create(product)
-        }
-        program.toEither()
-            .fold(
-                ifLeft = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
-                ifRight = { call.respondJson(HttpStatusCode.OK, it) }
-            )
+        fold(
+            block = {
+                val product = call.receive<PutProductDto>().toDomain()
+                service.create(product)
+            },
+            recover = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
+            catch = { throwableHandler(it).let { response -> call.respondJson(response.code, response) } },
+            transform = { call.respondJson(HttpStatusCode.Created, it) }
+        )
     }
 }
 
 private fun Route.delete(service: ProductService) {
     delete("/{id}") {
-        val program = effect {
-            val id = call.getRequiredParam("id") { it.toProductId() }
-            service.deleteBy(id)
-        }
-        program.toEither()
-            .fold(
-                ifLeft = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
-                ifRight = { call.respondJson(HttpStatusCode.OK, it) }
-            )
+        fold(
+            block = {
+                val id = call.getRequiredParam("id") { it.toProductId() }
+                service.deleteBy(id)
+            },
+            recover = { errorHandler(it).let { response -> call.respondJson(response.code, response) } },
+            catch = { throwableHandler(it).let { response -> call.respondJson(response.code, response) } },
+            transform = { call.respondJson(HttpStatusCode.OK, it) }
+        )
     }
 }
