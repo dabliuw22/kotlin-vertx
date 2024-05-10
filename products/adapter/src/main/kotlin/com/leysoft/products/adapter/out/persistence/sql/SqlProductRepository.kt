@@ -73,7 +73,7 @@ class SqlProductRepository private constructor() :
         val result = fold(
             block = { command(delById(id)).await() },
             recover = { error: Jdbc.Companion.SqlException -> raise(DeleteProductException(error.message)) },
-            catch = { _ -> raise(CreateProductException()) },
+            catch = { _ -> raise(DeleteProductException()) },
             transform = ::identity
         )
         id.wasDeleted(result)
