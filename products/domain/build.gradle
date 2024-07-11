@@ -2,6 +2,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-common"
     implementation "io.arrow-kt:arrow-core"
     implementation "io.arrow-kt:arrow-optics"
+    ksp "io.arrow-kt:arrow-optics-ksp-plugin"
 
     implementation project (":core:core-domain")
     implementation project (":core:core-error")
