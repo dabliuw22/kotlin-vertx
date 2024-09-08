@@ -10,27 +10,27 @@ import io.ktor.server.response.*
 
 suspend inline fun <reified A : Any> ApplicationCall.respondJson(
     status: HttpStatusCode,
-    message: A
+    message: A,
 ) {
     response.header(
         HttpHeaders.ContentType,
-        ContentType.Application.Json.toString()
+        ContentType.Application.Json.toString(),
     )
     this.respond(status, message)
 }
 
-fun ApplicationCall.getParam(key: String): Option<String> =
-    Option.fromNullable(parameters[key])
+fun ApplicationCall.getParam(key: String): Option<String> = Option.fromNullable(parameters[key])
 
 context(Raise<BaseException>)
 fun <A> ApplicationCall.getRequiredParam(
     key: String,
-    f: (String) -> A
+    f: (String) -> A,
 ): A =
     when (val id = getParam(key)) {
         is Some -> f(id.value)
         else -> raise(RequiredParameterException(key))
     }
 
-data class RequiredParameterException(override val message: String) :
-    InfrastructureException(message)
+data class RequiredParameterException(
+    override val message: String,
+) : InfrastructureException(message)

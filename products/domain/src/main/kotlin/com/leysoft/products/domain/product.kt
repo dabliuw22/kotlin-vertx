@@ -6,11 +6,14 @@ import java.util.UUID
 
 sealed interface ProductStatus {
     data object Deprecated
+
     data object Existing
 }
 
 @optics
-data class ProductId(val value: String = UUID.randomUUID().toString()) {
+data class ProductId(
+    val value: String = UUID.randomUUID().toString(),
+) {
     companion object
 }
 
@@ -21,7 +24,9 @@ fun ProductId.toCore(): ProductIdCore = ProductIdCore(value)
 fun ProductIdCore.fromCore(): ProductId = ProductId(value)
 
 @optics
-data class ProductName(val value: String) {
+data class ProductName(
+    val value: String,
+) {
     companion object
 }
 
@@ -32,7 +37,9 @@ fun ProductName.toCore(): ProductNameCore = ProductNameCore(value)
 fun ProductNameCore.fromCore(): ProductName = ProductName(value)
 
 @optics
-data class ProductStock(val value: Double) {
+data class ProductStock(
+    val value: Double,
+) {
     companion object
 }
 
@@ -43,7 +50,9 @@ fun ProductStock.toCore(): ProductStockCore = ProductStockCore(value)
 fun ProductStockCore.fromCore(): ProductStock = ProductStock(value)
 
 @optics
-data class ProductCreatedAt(val value: OffsetDateTime = OffsetDateTime.now()) {
+data class ProductCreatedAt(
+    val value: OffsetDateTime = OffsetDateTime.now(),
+) {
     companion object
 }
 
@@ -58,23 +67,25 @@ data class Product(
     val id: ProductId = ProductId(),
     val name: ProductName,
     val stock: ProductStock,
-    val createdAt: ProductCreatedAt = ProductCreatedAt()
+    val createdAt: ProductCreatedAt = ProductCreatedAt(),
 ) {
     companion object
 }
 
 typealias ProductCore = com.leysoft.core.domain.Product
 
-fun Product.toCore(): ProductCore = ProductCore(
-    id = id.toCore(),
-    name = name.toCore(),
-    stock = stock.toCore(),
-    createdAt = createdAt.toCore()
-)
+fun Product.toCore(): ProductCore =
+    ProductCore(
+        id = id.toCore(),
+        name = name.toCore(),
+        stock = stock.toCore(),
+        createdAt = createdAt.toCore(),
+    )
 
-fun ProductCore.fromCore(): Product = Product(
-    id = id.fromCore(),
-    name = name.fromCore(),
-    stock = stock.fromCore(),
-    createdAt = createdAt.fromCore()
-)
+fun ProductCore.fromCore(): Product =
+    Product(
+        id = id.fromCore(),
+        name = name.fromCore(),
+        stock = stock.fromCore(),
+        createdAt = createdAt.fromCore(),
+    )

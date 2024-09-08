@@ -1,29 +1,28 @@
-package com.leysoft.infrastructure.jdbc
+package com.leysoft.infrastructure.exposed
 
 import arrow.fx.coroutines.Resource
 import arrow.fx.coroutines.continuations.resource
 import com.leysoft.core.concurrent.IO
-import com.leysoft.infrastructure.jdbc.config.JdbcConfig
-import com.vladsch.kotlin.jdbc.Session
+import com.leysoft.infrastructure.exposed.config.ExposedConfig
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import com.vladsch.kotlin.jdbc.session as jdbc
+import org.jetbrains.exposed.sql.Database
 
-object JdbcResource {
+object ExposedResource {
 
-    context(JdbcConfig)
-    operator fun invoke(): Resource<Jdbc> =
+    context(ExposedConfig)
+    operator fun invoke(): Resource<Exposed> =
         resource {
-            val jdbc = this@JdbcConfig
-            val session = jdbc.session().bind()
-            with(session) {
+            val config = this@ExposedConfig
+            val database = config.database().bind()
+            with(database) {
                 with(IO) {
-                    Jdbc.invoke()
+                    Exposed.invoke()
                 }
             }
         }
 
-    private fun JdbcConfig.hikari(): Resource<HikariConfig> =
+    private fun ExposedConfig.hikari(): Resource<HikariConfig> =
         resource {
             val hikari = HikariConfig()
             hikari.jdbcUrl = url
@@ -31,20 +30,20 @@ object JdbcResource {
             hikari.password = password
             hikari.driverClassName = driver
             hikari.maximumPoolSize = poolMaxSize
-            // hikari.isReadOnly = readOnly
-            // hikari.transactionIsolation = isolation
+            hikari.isReadOnly = readOnly
+            hikari.transactionIsolation = isolation
             hikari
         }
 
-    private fun JdbcConfig.source(): Resource<HikariDataSource> =
+    private fun ExposedConfig.source(): Resource<HikariDataSource> =
         resource {
             val source = hikari().bind()
             resource { HikariDataSource(source) } release { it.close() }
         }
 
-    private fun JdbcConfig.session(): Resource<Session> =
+    private fun ExposedConfig.database(): Resource<Database> =
         resource {
             val source = source().bind()
-            resource { jdbc(source) } release { it.close() }
+            Database.connect(datasource = source)
         }
 }

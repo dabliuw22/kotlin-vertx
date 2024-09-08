@@ -13,32 +13,33 @@ import com.leysoft.products.domain.persistence.ProductRepository
 
 typealias Storage = Atomic<Map<String, Product>>
 
-class InMemoryProductRepository private constructor(private val storage: Storage) :
-    ProductRepository {
-
+class InMemoryProductRepository private constructor(
+    private val storage: Storage,
+) : ProductRepository {
     context(Raise<ProductException>)
     override suspend fun findBy(id: ProductId): Product =
         catch(
             block = { storage.get()[id.value] ?: raise(NotFoundProductException("Not found product: $id")) },
-            catch = { raise(NotFoundProductException("Not found product: $id")) }
+            catch = { raise(NotFoundProductException("Not found product: $id")) },
         )
 
     context(Raise<ProductException>)
     override suspend fun findAll(): List<Product> =
         catch(
             block = { storage.get().values.toList() },
-            catch = { raise(NotFoundProductException("Not found products")) }
+            catch = { raise(NotFoundProductException("Not found products")) },
         )
 
     context(Raise<ProductException>)
-    override suspend fun save(product: Product) {
+    override suspend fun save(product: Product): Product {
         val result = findBy(product.id)
         catch(
             block = {
                 storage.update { it.plus(Pair(result.id.value, product)) }
             },
-            catch = { raise(CreateProductException("Not save Product: ${product.id}")) }
+            catch = { raise(CreateProductException("Not save Product: ${product.id}")) },
         )
+        return product
     }
 
     context(Raise<ProductException>)
@@ -48,14 +49,11 @@ class InMemoryProductRepository private constructor(private val storage: Storage
             block = {
                 storage.update { it.minus(result.id.value) }
             },
-            catch = { raise(DeleteProductException("Not delete Product: $id")) }
+            catch = { raise(DeleteProductException("Not delete Product: $id")) },
         )
     }
 
     companion object {
-        operator fun invoke(
-            storage: Storage
-        ): ProductRepository =
-            InMemoryProductRepository(storage)
+        operator fun invoke(storage: Storage): ProductRepository = InMemoryProductRepository(storage)
     }
 }

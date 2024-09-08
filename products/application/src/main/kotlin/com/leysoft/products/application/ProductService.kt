@@ -16,33 +16,31 @@ interface ProductService {
     suspend fun getAll(): List<Product>
 
     context(Raise<ProductException>)
-    suspend fun create(product: Product)
+    suspend fun create(product: Product): Product
 
     context(Raise<ProductException>)
     suspend fun deleteBy(id: ProductId)
 
     companion object {
+        operator fun invoke(repository: ProductRepository): ProductService =
+            object : ProductService {
+                context(Raise<ProductException>)
+                override suspend fun getBy(id: ProductId): Product {
+                    val result = repository.findBy(id.fromCore())
+                    return result.toCore()
+                }
 
-        operator fun invoke(repository: ProductRepository): ProductService = object : ProductService {
+                context(Raise<ProductException>)
+                override suspend fun getAll(): List<Product> =
+                    repository
+                        .findAll()
+                        .map { it.toCore() }
 
-            context(Raise<ProductException>)
-            override suspend fun getBy(id: ProductId): Product {
-                val result = repository.findBy(id.fromCore())
-                return result.toCore()
+                context(Raise<ProductException>)
+                override suspend fun create(product: Product): Product = repository.save(product.fromCore()).toCore()
+
+                context(Raise<ProductException>)
+                override suspend fun deleteBy(id: ProductId) = repository.deleteBy(id.fromCore())
             }
-
-            context(Raise<ProductException>)
-            override suspend fun getAll(): List<Product> =
-                repository.findAll()
-                    .map { it.toCore() }
-
-            context(Raise<ProductException>)
-            override suspend fun create(product: Product) =
-                repository.save(product.fromCore())
-
-            context(Raise<ProductException>)
-            override suspend fun deleteBy(id: ProductId) =
-                repository.deleteBy(id.fromCore())
-        }
     }
 }

@@ -18,6 +18,7 @@ dependencies {
 
     implementation project (":infrastructure:infrastructure-http")
     implementation project (":infrastructure:infrastructure-jdbc")
+    implementation project (":infrastructure:infrastructure-sql-exposed")
     implementation project (":infrastructure:infrastructure-json")
     implementation project (":infrastructure:infrastructure-logger")
 

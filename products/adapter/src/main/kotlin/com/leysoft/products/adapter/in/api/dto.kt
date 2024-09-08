@@ -13,22 +13,24 @@ data class GetProductDto(
     val stock: Double,
     @JsonProperty("created_at")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    val createdAt: ZonedDateTime
+    val createdAt: ZonedDateTime,
 )
 
-fun Product.toDto(): GetProductDto = GetProductDto(
-    id = id.value,
-    name = name.value,
-    stock = stock.value,
-    createdAt = createdAt.value
-)
+fun Product.toDto(): GetProductDto =
+    GetProductDto(
+        id = id.value,
+        name = name.value,
+        stock = stock.value,
+        createdAt = createdAt.value,
+    )
 
 data class PutProductDto(
     val name: String,
-    val stock: Double
+    val stock: Double,
 )
 
-fun PutProductDto.toDomain(): Product = Product(
-    name = ProductName(name),
-    stock = ProductStock(stock)
-)
+fun PutProductDto.toDomain(): Product =
+    Product(
+        name = ProductName(name),
+        stock = ProductStock(stock),
+    )

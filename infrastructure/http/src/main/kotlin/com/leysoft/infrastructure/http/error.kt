@@ -7,11 +7,10 @@ typealias HttpErrorHandler<A, B> = (A) -> B
 
 data class ErrorResponse(
     val message: String,
-    val code: HttpStatusCode
+    val code: HttpStatusCode,
 )
 
-val throwableHandler: HttpErrorHandler<Throwable, ErrorResponse> = {
-        throwable ->
+val throwableHandler: HttpErrorHandler<Throwable, ErrorResponse> = { throwable ->
     ErrorResponse(throwable.message ?: "Internal Server Error", HttpStatusCode.InternalServerError)
 }
 

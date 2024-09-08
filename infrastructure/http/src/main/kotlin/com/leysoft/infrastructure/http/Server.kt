@@ -8,19 +8,17 @@ import io.ktor.server.netty.*
 object Server {
     fun create(
         config: HttpServerConfig,
-        block: Application.() -> Unit
-    ) =
-        embeddedServer(
-            Netty,
-            config.port,
-            config.host
-        ) { applyConfig(block) }
+        block: Application.() -> Unit,
+    ) = embeddedServer(
+        Netty,
+        config.port,
+        config.host,
+    ) { applyConfig(block) }
 
     private fun Application.applyConfig(block: Application.() -> Unit) {
         configure()
         block()
     }
 
-    fun NettyApplicationEngine.run(): NettyApplicationEngine =
-        start(true)
+    fun NettyApplicationEngine.run(): NettyApplicationEngine = start(true)
 }

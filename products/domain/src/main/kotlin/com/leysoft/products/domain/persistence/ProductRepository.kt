@@ -6,7 +6,6 @@ import com.leysoft.products.domain.Product
 import com.leysoft.products.domain.ProductId
 
 interface ProductRepository {
-
     context(Raise<ProductException>)
     suspend fun findBy(id: ProductId): Product
 
@@ -14,7 +13,7 @@ interface ProductRepository {
     suspend fun findAll(): List<Product>
 
     context(Raise<ProductException>)
-    suspend fun save(product: Product)
+    suspend fun save(product: Product): Product
 
     context(Raise<ProductException>)
     suspend fun deleteBy(id: ProductId)

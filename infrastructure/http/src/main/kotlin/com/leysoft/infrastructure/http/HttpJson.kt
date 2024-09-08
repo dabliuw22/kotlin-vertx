@@ -4,7 +4,6 @@ import arrow.core.Either
 import com.leysoft.infrastructure.json.Json
 
 open class HttpJson {
-
     fun <A : Any> encode(data: A): String =
         when (val json = Json.write(data)) {
             is Either.Right -> json.value
@@ -18,6 +17,6 @@ open class HttpJson {
         }
 
     companion object {
-        const val ApplicationJson = "application/json; charset=utf-8"
+        const val APPLICATION_JSON = "application/json; charset=utf-8"
     }
 }
