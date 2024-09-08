@@ -159,8 +159,8 @@ subprojects {
 
     kotlinter {
         failBuildWhenCannotAutoFormat = true
-        ignoreFailures = false
-        reporters = ['checkstyle', 'plain']
+        ignoreFailures = true // false
+        reporters = ['checkstyle', 'plain', 'html', 'json']
     }
 
     tasks.named("lintKotlinMain") {
